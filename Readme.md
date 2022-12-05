@@ -2,4 +2,4 @@
 
 ## Dépendances
 
-Java: `sudo apt install default-jre`
+Java: `sudo apt install default-jre default-jdk`
