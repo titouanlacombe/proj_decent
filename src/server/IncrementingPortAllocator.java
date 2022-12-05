@@ -1,7 +1,7 @@
 package server;
 
 class IncrementingPortAllocator {
-	private int port = 0;
+	private int port;
 
 	public PortAllocator(int startPort) {
 		port = startPort;

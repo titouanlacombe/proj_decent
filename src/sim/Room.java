@@ -15,7 +15,7 @@ class Room {
 
 	// Make a person enter the room
 	public void entering() {
-		leavingTimes.add(System.currentTimeMillis() + visitTimeGenerator.next());
+		leavingTimes.add(System.currentTimeMillis() + visitTimeGenerator.get());
 	}
 
 	// Make persons leave the room if they have to

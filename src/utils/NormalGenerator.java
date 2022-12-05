@@ -11,7 +11,7 @@ class NormalGenerator {
 		rand = new Random(seed);
 	}
 
-	public double nextValue() {
+	public double get() {
 		return mean + rand.nextGaussian() * stdDev;
 	}
 }
