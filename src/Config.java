@@ -1,4 +1,4 @@
-class Config {
+public class Config {
 	// --- Simulation config ---
 	public int roomCapacity;
 	public int nbDoors;
@@ -10,7 +10,7 @@ class Config {
 	// --- UI config ---
 
 	static public Config _default() {
-		config = new Config();
+		Config config = new Config();
 
 		config.roomCapacity = 3;
 		config.nbDoors = 2;

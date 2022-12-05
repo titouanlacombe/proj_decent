@@ -1,26 +1,30 @@
 package sim;
 
-import java.util.SortedSet;
+import java.util.*;
+import utils.NormalGenerator;
 
-class Room {
-	private SortedSet<double> leavingTimes;
+public class Room {
+	private SortedSet<Double> leavingTimes;
 	private double entryRate;
-	private lambda visitTimeGenerator;
+	private Timer timer;
+	private NormalGenerator visitTimeGenerator;
 	
-	public Room(double entryRate, lambda visitTimeGenerator) {
+	public Room(double entryRate, NormalGenerator visitTimeGenerator) {
 		this.entryRate = entryRate;
 		this.visitTimeGenerator = visitTimeGenerator;
-		this.leavingTimes = new SortedSet<double>();
+		this.leavingTimes = new TreeSet<Double>(); // TODO verify that this is the right type
+
+		this.timer = new Timer();
 	}
 
 	// Make a person enter the room
 	public void entering() {
-		leavingTimes.add(System.currentTimeMillis() + visitTimeGenerator.get());
+		leavingTimes.add(visitTimeGenerator.get() + timer.now());
 	}
 
 	// Make persons leave the room if they have to
 	public void leaving() {
-		time = System.currentTimeMillis();
+		Double time = timer.now();
 		while (leavingTimes.first() < time) {
 			leavingTimes.remove(leavingTimes.first());
 			// TODO call random server (output door random)

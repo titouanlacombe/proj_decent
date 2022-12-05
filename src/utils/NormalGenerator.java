@@ -1,6 +1,8 @@
 package utils;
 
-class NormalGenerator {
+import java.util.Random;
+
+public class NormalGenerator {
 	private Random rand;
 	private double mean;
 	private double stdDev;

@@ -1,5 +1,5 @@
 package sim;
 
-class Token {
-	private int placesLeft;
+public class Token {
+	public int placesLeft;
 }

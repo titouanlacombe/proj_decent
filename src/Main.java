@@ -1,21 +1,24 @@
-import Config;
-import sim.Room;
+import java.util.*;
 
-class Main {
+import sim.*;
+import server.IncrementingPortAllocator;
+import utils.NormalGenerator;
+
+public class Main {
 	public static void main(String[] args) {
 		Config config = Config._default();
 
-		IncrementingPortAllocator portAllocator = new PortAllocator();
+		IncrementingPortAllocator portAllocator = new IncrementingPortAllocator(10000);
 
 		NormalGenerator generator = new NormalGenerator(config.visitTimeMean, config.visitTimeStdDev, 0);
-		Room room = new Room(config.entryRate, generator);
+		sim.Room room = new sim.Room(config.entryRate, generator);
 		RoomServer roomServer = new RoomServer(room, portAllocator.get());
 
-		ArrayList<DoorServer> doorServers = new ArrayList<DoorServer>();
+		ArrayList<ControllerServer> doorServers = new ArrayList<ControllerServer>();
 		for (int i = 0; i < config.nbDoors; i++) {
-			DoorServer doorServer = new DoorServer(portAllocator.get());
-			doorServer.start();
-			doorServers.add(doorServer);
+			ControllerServer controllerServer = new ControllerServer(portAllocator.get());
+			controllerServer.start();
+			doorServers.add(controllerServer);
 		}
 
 		// TODO call first server with token from default config

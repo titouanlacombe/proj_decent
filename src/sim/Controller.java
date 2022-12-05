@@ -1,6 +1,6 @@
 package sim;
 
-class Controller {
+public class Controller {
 	private int waiting;
 	private int leaving;
 
