@@ -1,3 +1,5 @@
+package sim;
+
 class Controller {
 	private int waiting;
 	private int leaving;

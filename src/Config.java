@@ -1,12 +1,24 @@
 class Config {
-	// Simulation config
+	// --- Simulation config ---
 	public int roomCapacity;
 	public int nbDoors;
 
+	public double entryRate;
+	public double visitTimeMean;
+	public double visitTimeStdDev;
+
+	// --- UI config ---
+
 	static public Config _default() {
-		conf = new Config();
-		conf.roomCapacity = 3;
-		conf.nbDoors = 2;
-		return conf;
+		config = new Config();
+
+		config.roomCapacity = 3;
+		config.nbDoors = 2;
+
+		config.entryRate = 1;
+		config.visitTimeMean = 1;
+		config.visitTimeStdDev = 0.5;
+
+		return config;
 	}
 }

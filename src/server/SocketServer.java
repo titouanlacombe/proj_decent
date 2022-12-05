@@ -1,3 +1,4 @@
+package server;
 // Implement simple RMI server with sockets
 // Packet: [length][method][args]
 class SocketServer {

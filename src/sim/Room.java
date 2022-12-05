@@ -1,3 +1,5 @@
+package sim;
+
 import java.util.SortedSet;
 
 class Room {
@@ -13,7 +15,7 @@ class Room {
 
 	// Make a person enter the room
 	public void entering() {
-		leavingTimes.add(System.currentTimeMillis() + visitTimeGenerator());
+		leavingTimes.add(System.currentTimeMillis() + visitTimeGenerator.next());
 	}
 
 	// Make persons leave the room if they have to
