@@ -16,7 +16,7 @@ public class ControllerServer extends ThreadedServer {
 		nextController = new Socket(nextHost, nextPort);
 	}
 
-	public void handle(Socket clientSocket) throws Exception {
+	public boolean handle(Socket clientSocket) throws Exception {
 		// Run forever
 		while (true) {
 			// Parse message
@@ -31,5 +31,7 @@ public class ControllerServer extends ThreadedServer {
 
 		// clientSocket.close();
 		// nextController.close();
+
+		// return true;
 	}
 }

@@ -11,7 +11,7 @@ public class RoomServer extends ThreadedServer {
 		this.room = room;
 	}
 
-	public void handle(Socket clientSocket) throws Exception {
+	public boolean handle(Socket clientSocket) throws Exception {
 		// InputStream in = clientSocket.getInputStream();
 
 		// Run forever
@@ -21,5 +21,7 @@ public class RoomServer extends ThreadedServer {
 			// Call room
 			room.run();
 		}
+
+		// return true;
 	}
 }
