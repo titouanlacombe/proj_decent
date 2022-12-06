@@ -16,13 +16,10 @@ public class Token implements Serializable {
 		ObjectOutputStream oos = new ObjectOutputStream(out);
 		oos.writeObject(this);
 		oos.flush();
-		oos.close();
 	}
 
 	public static Token receiveFrom(InputStream in) throws Exception {
 		ObjectInputStream ois = new ObjectInputStream(in);
-		Token token = (Token) ois.readObject();
-		ois.close();
-		return token;
+		return (Token) ois.readObject();
 	}
 }

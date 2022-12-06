@@ -6,6 +6,7 @@ import java.net.*;
 public class ControllerServer extends ThreadedServer {
 	private Controller controller;
 	private Socket nextController;
+	private Token startingToken;
 
 	public ControllerServer(Controller controller) throws IOException {
 		super();
@@ -17,7 +18,16 @@ public class ControllerServer extends ThreadedServer {
 		nextController = new Socket(nextHost, nextPort);
 	}
 
+	public void setStartingToken(Token startingToken) {
+		this.startingToken = startingToken;
+	}
+
 	public boolean handle(Socket clientSocket) throws Exception {
+		if (startingToken != null) {
+			// Start the loop by sending the token to the next controller
+			startingToken.sendTo(nextController.getOutputStream());
+		}
+
 		// Run forever
 		while (true) {
 			// Parse message

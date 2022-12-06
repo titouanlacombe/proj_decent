@@ -9,6 +9,7 @@ abstract public class ThreadedServer extends ServerSocket {
 
 	public ThreadedServer() throws IOException {
 		super(0);
+		System.out.println(this + ": Created");
 	}
 
 	abstract public boolean handle(Socket socket) throws Exception;

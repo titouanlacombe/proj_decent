@@ -11,19 +11,16 @@ public class Main {
 		// --- Create controller servers ---
 		System.out.println("Creating " + config.nbControllers + " controller servers");
 		ArrayList<ControllerServer> controllerServers = new ArrayList<ControllerServer>();
-		ControllerServer first = new ControllerServer(new Controller());
-
-		ControllerServer previous = first;
-		int i = 1;
-		while (i < config.nbControllers) {
+		for (int i = 0; i < config.nbControllers; i++) {
 			ControllerServer controllerServer = new ControllerServer(new Controller());
 			controllerServers.add(controllerServer);
-
-			previous.setNext("0.0.0.0", controllerServer.getLocalPort());
-			previous = controllerServer;
-			i++;
 		}
-		previous.setNext(first.getHost(), first.getLocalPort());
+		// Connect controllers
+		for (int i = 0; i < config.nbControllers; i++) {
+			ControllerServer current = controllerServers.get(i);
+			ControllerServer next = controllerServers.get((i + 1) % config.nbControllers);
+			current.setNext(next.getHost(), next.getLocalPort());
+		}
 
 		// --- Create room server ---
 		System.out.println("Creating room server");
@@ -31,18 +28,16 @@ public class Main {
 		sim.Room room = new sim.Room(config.entryRate, generator);
 		RoomServer roomServer = new RoomServer(room);
 
+		// Configuring first controller
+		System.out.println("Configuring first controller");
+		controllerServers.get(0).setStartingToken(new Token(config.roomCapacity));
+
 		// --- Start servers threads ---
 		System.out.println("Starting servers");
 		for (ControllerServer controllerServer : controllerServers) {
 			controllerServer.serve();
 		}
 		roomServer.serve();
-
-		// Call first server with token from default config
-		System.out.println("Calling first server at " + first.getHost() + ":" + first.getLocalPort());
-		Token token = new Token(config.roomCapacity);
-		Socket clientSocket = new Socket(first.getHost(), first.getLocalPort());
-		token.sendTo(clientSocket.getOutputStream());
 
 		// --- Wait for room server to finish ---
 		System.out.println("Waiting for room server to finish");
