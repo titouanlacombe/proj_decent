@@ -49,6 +49,6 @@ abstract public class ThreadedServer extends ServerSocket {
 	}
 
 	public String toString() {
-		return "ThreadedServer listening at " + this.getHost() + ":" + this.getLocalPort();
+		return this.getHost() + ":" + this.getLocalPort();
 	}
 }

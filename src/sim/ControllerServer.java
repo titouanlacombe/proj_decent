@@ -13,6 +13,7 @@ public class ControllerServer extends ThreadedServer {
 	}
 
 	public void setNext(String nextHost, int nextPort) throws IOException {
+		System.out.println("Controller connecting to next at " + nextHost + ":" + nextPort);
 		nextController = new Socket(nextHost, nextPort);
 	}
 
@@ -21,6 +22,8 @@ public class ControllerServer extends ThreadedServer {
 		while (true) {
 			// Parse message
 			Token token = Token.receiveFrom(clientSocket.getInputStream());
+
+			System.out.println("Controller received token with " + token.placesLeft + " places left");
 
 			// Call controller
 			controller.run(token);

@@ -19,7 +19,7 @@ public class Main {
 			ControllerServer controllerServer = new ControllerServer(new Controller());
 			controllerServers.add(controllerServer);
 
-			previous.setNext("0.0.0.0", previous.getLocalPort());
+			previous.setNext("0.0.0.0", controllerServer.getLocalPort());
 			previous = controllerServer;
 			i++;
 		}
@@ -39,7 +39,7 @@ public class Main {
 		roomServer.serve();
 
 		// Call first server with token from default config
-		System.out.println("Calling first server");
+		System.out.println("Calling first server at " + first.getHost() + ":" + first.getLocalPort());
 		Token token = new Token(config.roomCapacity);
 		Socket clientSocket = new Socket(first.getHost(), first.getLocalPort());
 		token.sendTo(clientSocket.getOutputStream());
