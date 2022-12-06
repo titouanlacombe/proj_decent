@@ -1,4 +1,4 @@
-package server;
+package utils;
 
 public class IncrementingPortAllocator {
 	private int port;

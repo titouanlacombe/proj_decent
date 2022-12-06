@@ -2,6 +2,7 @@ package sim;
 
 import java.util.*;
 import utils.NormalGenerator;
+import utils.Timer;
 
 public class Room {
 	private SortedSet<Double> leavingTimes;

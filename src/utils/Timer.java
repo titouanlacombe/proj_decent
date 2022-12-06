@@ -1,4 +1,4 @@
-package sim;
+package utils;
 
 public class Timer {
 	public double now() {
