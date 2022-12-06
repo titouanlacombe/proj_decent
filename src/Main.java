@@ -61,7 +61,6 @@ public class Main {
 
 		// Call first server with token from default config
 		Token token = new Token(config.roomCapacity);
-		ControllerServer first = controllerServers.get(0);
 		Socket clientSocket = new Socket(first.getHost(), first.getPort());
 		token.sendTo(clientSocket.getOutputStream());
 
