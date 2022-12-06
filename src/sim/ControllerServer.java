@@ -39,6 +39,7 @@ public class ControllerServer extends ThreadedServer {
 			controller.run(token);
 
 			// Call next controller
+			Thread.sleep(1000);
 			token.sendTo(nextController.getOutputStream());
 		}
 
