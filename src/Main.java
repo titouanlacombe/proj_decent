@@ -10,13 +10,24 @@ public class Main {
 	public static void main(String[] args) {
 		Config config = Config._default();
 
+		String host = "localhost";
+		IncrementingPortAllocator portAllocator = new IncrementingPortAllocator(10000);
+
 		// --- Create controller servers ---
 		ArrayList<ControllerServer> controllerServers = new ArrayList<ControllerServer>();
-		for (int i = 0; i < config.nbDoors; i++) {
-			Controller controller = new Controller(config.nbPlaces);
-			ControllerServer controllerServer = new ControllerServer(controller, portAllocator.get());
+		ControllerServer first = new ControllerServer(new Controller(), portAllocator.get());
+		
+		ControllerServer previous = first;
+		int i = 1;
+		while (i < config.numControllers) {
+			ControllerServer controllerServer = new ControllerServer(new Controller(), portAllocator.get());
+			
 			controllerServers.add(controllerServer);
+			previous.setNext(previous.getHost(), previous.getPort());
+			previous = controllerServer;
+			i++;
 		}
+		previous.setNext(first.getHost(), first.getPort());
 
 		// --- Create room server ---
 		NormalGenerator generator = new NormalGenerator(config.visitTimeMean, config.visitTimeStdDev, 0);
@@ -24,7 +35,6 @@ public class Main {
 		RoomServer roomServer = new RoomServer(room, portAllocator.get());
 
 		// --- Start servers threads ---
-		IncrementingPortAllocator portAllocator = new IncrementingPortAllocator(10000);
 		for (ControllerServer controllerServer : controllerServers) {
 			Thread thread = new Thread(() -> {
 				try {
@@ -53,8 +63,7 @@ public class Main {
 		Token token = new Token(config.roomCapacity);
 		ControllerServer first = controllerServers.get(0);
 		Socket clientSocket = new Socket(first.getHost(), first.getPort());
-		OutputStreamWriter out = new OutputStreamWriter(clientSocket.getOutputStream());
-		token.sendTo(out);
+		token.sendTo(clientSocket.getOutputStream());
 
 		System.out.println("Main thread finished");
 	}

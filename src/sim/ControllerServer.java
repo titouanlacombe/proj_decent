@@ -9,10 +9,12 @@ public class ControllerServer extends ServerSocket {
 	private String nextHost;
 	private int nextPort;
 
-	public ControllerServer(Controller controller, int port, String nextHost, int nextPort) throws IOException {
+	public ControllerServer(Controller controller, int port) throws IOException {
 		super(port);
-
 		this.controller = controller;
+	}
+
+	public void setNext(String nextHost, int nextPort) {
 		this.nextHost = nextHost;
 		this.nextPort = nextPort;
 	}
