@@ -19,7 +19,7 @@ public class Main {
 		
 		ControllerServer previous = first;
 		int i = 1;
-		while (i < config.numControllers) {
+		while (i < config.nbControllers) {
 			ControllerServer controllerServer = new ControllerServer(new Controller(), portAllocator.get());
 			
 			controllerServers.add(controllerServer);

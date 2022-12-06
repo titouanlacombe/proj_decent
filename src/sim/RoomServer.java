@@ -4,7 +4,7 @@ import java.io.*;
 import java.net.*;
 import java.util.*;
 
-public class RoomServer {
+public class RoomServer extends ServerSocket {
 	private Room room;
 
 	public RoomServer(Room room, int port) throws IOException {

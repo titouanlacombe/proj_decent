@@ -1,7 +1,7 @@
 public class Config {
 	// --- Simulation config ---
 	public int roomCapacity;
-	public int nbDoors;
+	public int nbControllers;
 
 	public double entryRate;
 	public double visitTimeMean;
@@ -13,7 +13,7 @@ public class Config {
 		Config config = new Config();
 
 		config.roomCapacity = 3;
-		config.nbDoors = 2;
+		config.nbControllers = 2;
 
 		config.entryRate = 1;
 		config.visitTimeMean = 1;
