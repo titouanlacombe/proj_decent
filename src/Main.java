@@ -36,28 +36,9 @@ public class Main {
 
 		// --- Start servers threads ---
 		for (ControllerServer controllerServer : controllerServers) {
-			Thread thread = new Thread(() -> {
-				try {
-					controllerServer.run();
-				} catch (Exception e) {
-					System.out.println("Error in " + controllerServer);
-					e.printStackTrace();
-				}
-				System.out.println(controllerServer + " finished");
-			});
-			thread.start();
+			controllerServer.serve();
 		}
-		
-		Thread thread = new Thread(() -> {
-			try {
-				roomServer.run();
-			} catch (Exception e) {
-				System.out.println("Error in " + roomServer);
-				e.printStackTrace();
-			}
-			System.out.println(roomServer + " finished");
-		});
-		thread.start();
+		roomServer.serve();
 
 		// Call first server with token from default config
 		Token token = new Token(config.roomCapacity);

@@ -4,7 +4,7 @@ import java.io.*;
 import java.net.*;
 import java.util.*;
 
-public class RoomServer extends ServerSocket {
+public class RoomServer extends ThreadedServer {
 	private Room room;
 
 	public RoomServer(Room room, int port) throws IOException {
@@ -12,8 +12,7 @@ public class RoomServer extends ServerSocket {
 		this.room = room;
 	}
 
-	public void run() {
-		Socket clientSocket = this.accept();
+	public void handle(Socket clientSocket) {
 		InputStream in = clientSocket.getInputStream();
 
 		// Run forever
@@ -23,9 +22,5 @@ public class RoomServer extends ServerSocket {
 			// Call room
 			room.run();
 		}
-	}
-
-	public String toString() {
-		return "RoomServer(" + this.getLocalPort() + ")";
 	}
 }

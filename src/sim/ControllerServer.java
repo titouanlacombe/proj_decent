@@ -4,10 +4,9 @@ import java.io.*;
 import java.net.*;
 import java.util.*;
 
-public class ControllerServer extends ServerSocket {
+public class ControllerServer extends ThreadedServer {
 	private Controller controller;
-	private String nextHost;
-	private int nextPort;
+	private Socket nextController;
 
 	public ControllerServer(Controller controller, int port) throws IOException {
 		super(port);
@@ -15,14 +14,10 @@ public class ControllerServer extends ServerSocket {
 	}
 
 	public void setNext(String nextHost, int nextPort) {
-		this.nextHost = nextHost;
-		this.nextPort = nextPort;
+		nextController = new Socket(nextHost, nextPort);
 	}
 
-	public void run() {
-		Socket clientSocket = this.accept();
-		Socket nextSocket = new Socket(nextHost, nextPort);
-
+	public void handle(Socket clientSocket) {
 		// Run forever
 		while (true) {
 			// Parse message
@@ -32,15 +27,10 @@ public class ControllerServer extends ServerSocket {
 			controller.run(token);
 
 			// Call next controller
-			token.sendTo(nextSocket.getOutputStream());
+			token.sendTo(nextController.getOutputStream());
 		}
 
 		clientSocket.close();
-		nextSocket.close();
-		this.close();
-	}
-
-	public String toString() {
-		return "ControllerServer(" + this.getLocalPort() + ")";
+		nextController.close();
 	}
 }
