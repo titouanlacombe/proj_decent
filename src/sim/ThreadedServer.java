@@ -8,7 +8,7 @@ abstract public class ThreadedServer extends ServerSocket {
 	private Thread thread;
 
 	public ThreadedServer() throws IOException {
-		super();
+		super(0);
 	}
 
 	abstract public void handle(Socket socket) throws Exception;
