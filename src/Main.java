@@ -1,38 +1,33 @@
 import java.util.*;
-import java.lang.Thread;
+import java.net.*;
 
 import sim.*;
-import java.io.*;
-import utils.IncrementingPortAllocator;
 import utils.NormalGenerator;
 
 public class Main {
-	public static void main(String[] args) {
+	public static void _main(String[] args) throws Exception {
 		Config config = Config._default();
-
-		String host = "localhost";
-		IncrementingPortAllocator portAllocator = new IncrementingPortAllocator(10000);
 
 		// --- Create controller servers ---
 		ArrayList<ControllerServer> controllerServers = new ArrayList<ControllerServer>();
-		ControllerServer first = new ControllerServer(new Controller(), portAllocator.get());
-		
+		ControllerServer first = new ControllerServer(new Controller());
+
 		ControllerServer previous = first;
 		int i = 1;
 		while (i < config.nbControllers) {
-			ControllerServer controllerServer = new ControllerServer(new Controller(), portAllocator.get());
-			
+			ControllerServer controllerServer = new ControllerServer(new Controller());
 			controllerServers.add(controllerServer);
-			previous.setNext(previous.getHost(), previous.getPort());
+
+			previous.setNext("0.0.0.0", previous.getLocalPort());
 			previous = controllerServer;
 			i++;
 		}
-		previous.setNext(first.getHost(), first.getPort());
+		previous.setNext(first.getHost(), first.getLocalPort());
 
 		// --- Create room server ---
 		NormalGenerator generator = new NormalGenerator(config.visitTimeMean, config.visitTimeStdDev, 0);
 		sim.Room room = new sim.Room(config.entryRate, generator);
-		RoomServer roomServer = new RoomServer(room, portAllocator.get());
+		RoomServer roomServer = new RoomServer(room);
 
 		// --- Start servers threads ---
 		for (ControllerServer controllerServer : controllerServers) {
@@ -42,9 +37,27 @@ public class Main {
 
 		// Call first server with token from default config
 		Token token = new Token(config.roomCapacity);
-		Socket clientSocket = new Socket(first.getHost(), first.getPort());
+		Socket clientSocket = new Socket(first.getHost(), first.getLocalPort());
 		token.sendTo(clientSocket.getOutputStream());
 
+		// --- Wait for room server to finish ---
+		roomServer.join();
+
+		// --- Stop servers ---
+		for (ControllerServer controllerServer : controllerServers) {
+			controllerServer.close();
+		}
+		roomServer.close();
+
 		System.out.println("Main thread finished");
+	}
+
+	public static void main(String[] args) {
+		try {
+			_main(args);
+		} catch (Exception e) {
+			System.out.println("Error in main thread");
+			e.printStackTrace();
+		}
 	}
 }

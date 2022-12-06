@@ -1,18 +1,21 @@
 package sim;
 
-import java.io.*;
 import java.net.*;
-import java.util.*;
+import java.io.*;
 import java.lang.Thread;
 
 abstract public class ThreadedServer extends ServerSocket {
 	private Thread thread;
 
-	public ThreadedServer(int port) throws IOException {
-		super(port);
+	public ThreadedServer() throws IOException {
+		super();
 	}
 
 	abstract public void handle(Socket socket) throws Exception;
+
+	public String getHost() {
+		return this.getInetAddress().getHostAddress();
+	}
 
 	public void serve() {
 		thread = new Thread(() -> {
@@ -27,12 +30,16 @@ abstract public class ThreadedServer extends ServerSocket {
 		thread.start();
 	}
 
-	public void stop() {
+	public void join() throws InterruptedException {
+		thread.join();
+	}
+
+	public void close() throws IOException {
 		thread.interrupt();
 		this.close();
 	}
 
 	public String toString() {
-		return "ThreadedServer listening at " + this.getHost() + ":" + this.getPort();
+		return "ThreadedServer listening at " + this.getHost() + ":" + this.getLocalPort();
 	}
 }

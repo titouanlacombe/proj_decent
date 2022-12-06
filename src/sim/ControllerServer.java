@@ -2,22 +2,21 @@ package sim;
 
 import java.io.*;
 import java.net.*;
-import java.util.*;
 
 public class ControllerServer extends ThreadedServer {
 	private Controller controller;
 	private Socket nextController;
 
-	public ControllerServer(Controller controller, int port) throws IOException {
-		super(port);
+	public ControllerServer(Controller controller) throws IOException {
+		super();
 		this.controller = controller;
 	}
 
-	public void setNext(String nextHost, int nextPort) {
+	public void setNext(String nextHost, int nextPort) throws IOException {
 		nextController = new Socket(nextHost, nextPort);
 	}
 
-	public void handle(Socket clientSocket) {
+	public void handle(Socket clientSocket) throws Exception {
 		// Run forever
 		while (true) {
 			// Parse message
@@ -30,7 +29,7 @@ public class ControllerServer extends ThreadedServer {
 			token.sendTo(nextController.getOutputStream());
 		}
 
-		clientSocket.close();
-		nextController.close();
+		// clientSocket.close();
+		// nextController.close();
 	}
 }
