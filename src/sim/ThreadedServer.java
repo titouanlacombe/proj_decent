@@ -5,14 +5,14 @@ import java.net.*;
 import java.util.*;
 import java.lang.Thread;
 
-public class ThreadedServer extends ServerSocket {
+abstract public class ThreadedServer extends ServerSocket {
 	private Thread thread;
 
 	public ThreadedServer(int port) throws IOException {
 		super(port);
 	}
 
-	public abstract void handle(Socket socket) throws Exception;
+	abstract public void handle(Socket socket) throws Exception;
 
 	public void serve() {
 		thread = new Thread(() -> {
