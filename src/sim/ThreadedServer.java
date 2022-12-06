@@ -20,12 +20,15 @@ abstract public class ThreadedServer extends ServerSocket {
 	public void serve() {
 		thread = new Thread(() -> {
 			try {
-				this.handle(this.accept());
+				Socket socket = this.accept();
+				System.out.println(this + ": Connection from " + socket.getInetAddress().getHostAddress() + ":"
+						+ socket.getPort());
+				this.handle(socket);
 			} catch (Exception e) {
-				System.out.println("Error in " + this);
+				System.out.println(this + ": Error:");
 				e.printStackTrace();
 			}
-			System.out.println(this + " finished");
+			System.out.println(this + ": Finished");
 		});
 		thread.start();
 	}

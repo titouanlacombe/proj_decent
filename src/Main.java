@@ -9,6 +9,7 @@ public class Main {
 		Config config = Config._default();
 
 		// --- Create controller servers ---
+		System.out.println("Creating " + config.nbControllers + " controller servers");
 		ArrayList<ControllerServer> controllerServers = new ArrayList<ControllerServer>();
 		ControllerServer first = new ControllerServer(new Controller());
 
@@ -25,25 +26,30 @@ public class Main {
 		previous.setNext(first.getHost(), first.getLocalPort());
 
 		// --- Create room server ---
+		System.out.println("Creating room server");
 		NormalGenerator generator = new NormalGenerator(config.visitTimeMean, config.visitTimeStdDev, 0);
 		sim.Room room = new sim.Room(config.entryRate, generator);
 		RoomServer roomServer = new RoomServer(room);
 
 		// --- Start servers threads ---
+		System.out.println("Starting servers");
 		for (ControllerServer controllerServer : controllerServers) {
 			controllerServer.serve();
 		}
 		roomServer.serve();
 
 		// Call first server with token from default config
+		System.out.println("Calling first server");
 		Token token = new Token(config.roomCapacity);
 		Socket clientSocket = new Socket(first.getHost(), first.getLocalPort());
 		token.sendTo(clientSocket.getOutputStream());
 
 		// --- Wait for room server to finish ---
+		System.out.println("Waiting for room server to finish");
 		roomServer.join();
 
 		// --- Stop servers ---
+		System.out.println("Stopping servers");
 		for (ControllerServer controllerServer : controllerServers) {
 			controllerServer.close();
 		}
