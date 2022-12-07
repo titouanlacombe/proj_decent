@@ -22,4 +22,10 @@ public class Token implements Serializable {
 		ObjectInputStream ois = new ObjectInputStream(in);
 		return (Token) ois.readObject();
 	}
+
+	public String toString() {
+		return "Token {\n" +
+				"\tplacesLeft: " + placesLeft + "\n" +
+				"}";
+	}
 }

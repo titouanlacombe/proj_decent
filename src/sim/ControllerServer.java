@@ -33,7 +33,7 @@ public class ControllerServer extends ThreadedServer {
 			// Parse message
 			Token token = Token.receiveFrom(clientSocket.getInputStream());
 
-			System.out.println("Controller received token with " + token.placesLeft + " places left");
+			System.out.println(this + " received: " + token);
 
 			// Call controller
 			controller.run(token);

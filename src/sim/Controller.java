@@ -1,57 +1,55 @@
 package sim;
 
 public class Controller {
-	private int waiting;
-	private int leaving;
+	private int entering; // Waiting to enter
+	private int leaving; // Waiting to leave
 
 	public Controller() {
-		this.waiting = 0;
+		this.entering = 0;
 		this.leaving = 0;
 	}
 
-	public void waiting() {
-		waiting++;
+	private void make_enter(Token token, int n) {
+		token.placesLeft -= n;
+		entering -= n;
 	}
 
-	public void leaving() {
-		leaving++;
+	private void make_leave(Token token, int n) {
+		token.placesLeft += n;
+		leaving -= n;
 	}
 
 	// [Entering strategy 1] Make maximum persons enter the room
-	public void es1(Token token) {
-		token.placesLeft -= waiting;
-		waiting = 0;
-
-		if (token.placesLeft < 0) {
-			waiting = -token.placesLeft;
-			token.placesLeft = 0;
-		}
+	private void es1(Token token) {
+		int n = Math.min(token.placesLeft, entering);
+		make_enter(token, n);
 	}
 
 	// [Leaving strategy 1] Make maximum persons leave the room
-	public void ls1(Token token) {
-		token.placesLeft += leaving;
-		leaving = 0;
+	private void ls1(Token token) {
+		make_leave(token, leaving);
 	}
 
 	// [Entering strategy 2] Make one person enter the room
-	public void es2(Token token) {
-		if (waiting > 0) {
-			token.placesLeft--;
-			waiting--;
-		}
+	private void es2(Token token) {
+		make_enter(token, 1);
 	}
 
 	// [Leaving strategy 2] Make one person leave the room
-	public void ls2(Token token) {
-		if (leaving > 0) {
-			token.placesLeft++;
-			leaving--;
-		}
+	private void ls2(Token token) {
+		make_leave(token, 1);
 	}
 
 	public void run(Token token) {
 		es1(token);
 		ls1(token);
+	}
+
+	public void add_entering() {
+		entering++;
+	}
+
+	public void add_leaving() {
+		leaving++;
 	}
 }
