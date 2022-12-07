@@ -21,7 +21,7 @@ public class FullAddress {
 	}
 
 	public static FullAddress fromSocket(Socket socket) {
-		return new FullAddress(socket.getInetAddress().getHostAddress(), socket.getPort());
+		return new FullAddress(socket.getInetAddress().getHostAddress(), socket.getLocalPort());
 	}
 
 	public static FullAddress fromSocket(ServerSocket socket) {

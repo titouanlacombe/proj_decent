@@ -1,18 +1,16 @@
 default: run_manager
 
-NB_NODES = 3
+# Parse the command line arguments by ignoring the first one
+ARGS = $(wordlist 2,$(words $(MAKECMDGOALS)),$(MAKECMDGOALS))
 
 build:
 	javac -d bin -cp bin src/**/*.java src/*.java
 
-run_manager: build
-	java -cp bin Manager $(NB_NODES)
+run_manager:
+	java -cp bin Manager $(ARGS)
 
-run_node: build
-	java -cp bin Node
-
-run: build
-	java -cp bin Main
+run_node:
+	java -cp bin Node $(ARGS)
 
 clean:
 	rm -rf bin/*

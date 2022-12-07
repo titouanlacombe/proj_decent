@@ -16,10 +16,10 @@ public class Manager {
 		// Create server
 		ServerSocket serverSocket = new ServerSocket(0);
 		FullAddress managerAddress = FullAddress.fromSocket(serverSocket);
-		System.out.println("Server started at " + managerAddress);
+		System.out.println("Manager started at " + managerAddress);
 
 		// Write address to "server.txt" file for automation
-		File server_file = new File("./data/server.txt");
+		File server_file = new File("./data/manager_address.txt");
 		server_file.getParentFile().mkdirs();
 		server_file.createNewFile();
 		FileWriter writer = new FileWriter(server_file);

@@ -15,16 +15,17 @@ public class Node {
 		// Creating server
 		ServerSocket serverSocket = new ServerSocket(0);
 		FullAddress myAddress = FullAddress.fromSocket(serverSocket);
-		System.out.println("Server started at " + myAddress);
+		System.out.println("Node started at " + myAddress);
 
 		// Send manager my address
-		FullAddress managerAddress = FullAddress.fromString(args[1]);
+		FullAddress managerAddress = FullAddress.fromString(args[0]);
 		Socket socket = new Socket(managerAddress.ip, managerAddress.port);
 		System.out.println("Sending my address to " + managerAddress);
 		socket.getOutputStream().write(myAddress.toString().getBytes());
 		socket.close();
 
 		// Wait for manager to send next node
+		System.out.println("Waiting for manager to send next node");
 		Socket rep_socket = serverSocket.accept();
 		String resp = new String(rep_socket.getInputStream().readAllBytes());
 		FullAddress nextAddress = FullAddress.fromString(resp);
