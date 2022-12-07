@@ -7,9 +7,9 @@ import utils.*;
 public class Manager {
 	// Args: num_nodes => write to stdout the ip:port of manager
 	public static void _main(String[] args) throws Exception {
-		if (args.length != 1) {
+		if (args.length != 2) {
 			System.out.println("Error: Invalid number of arguments");
-			System.out.println("Usage: java Manager num_nodes");
+			System.out.println("Usage: java Manager num_nodes room_capacity");
 			return;
 		}
 
@@ -52,9 +52,17 @@ public class Manager {
 			socket.close();
 		}
 
-		serverSocket.close();
+		// Telling node 0 to start
+		System.out.println("Telling node 0 to start");
+		FullAddress node0 = nodes.get(0);
+		Socket socket = new Socket(node0.ip, node0.port);
+		int roomCapacity = Integer.parseInt(args[1]);
+		String message = "start " + roomCapacity;
+		socket.getOutputStream().write(message.getBytes());
+		socket.close();
 
 		System.out.println("Nodes setup complete, exiting");
+		serverSocket.close();
 	}
 
 	public static void main(String[] args) {
