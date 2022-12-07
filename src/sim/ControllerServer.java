@@ -26,6 +26,7 @@ public class ControllerServer extends ThreadedServer {
 		if (startingToken != null) {
 			// Start the loop by sending the token to the next controller
 			startingToken.sendTo(nextController.getOutputStream());
+			startingToken = null;
 		}
 
 		// Run forever
