@@ -32,7 +32,8 @@ public class Manager {
 		int numNodes = Integer.parseInt(args[0]);
 		for (int i = 0; i < numNodes; i++) {
 			Socket socket = serverSocket.accept();
-			FullAddress node = FullAddress.fromSocket(socket);
+			String message = new String(socket.getInputStream().readAllBytes());
+			FullAddress node = FullAddress.fromString(message);
 
 			System.out.println("Node " + i + " connected: " + node);
 
