@@ -53,6 +53,8 @@ public class Manager {
 		}
 
 		serverSocket.close();
+
+		System.out.println("Nodes setup complete, exiting");
 	}
 
 	public static void main(String[] args) {
