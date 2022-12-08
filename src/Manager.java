@@ -64,9 +64,7 @@ public class Manager {
 		System.out.println("Sending start message to node 0");
 		FullAddress node0 = nodes.get(0);
 		Socket socket = new Socket(node0.ip, node0.port);
-		OutputStream os = socket.getOutputStream();
-		os.write("start ".getBytes());
-		initialToken.serialize(os);
+		socket.getOutputStream().write(("token " + initialToken.serialize()).getBytes());
 		socket.close();
 
 		System.out.println("Nodes setup complete, exiting");

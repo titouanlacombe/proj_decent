@@ -12,14 +12,16 @@ public class Token implements Serializable {
 	public Token() {
 	}
 
-	public void serialize(OutputStream out) throws IOException {
-		ObjectOutputStream oos = new ObjectOutputStream(out);
+	public String serialize() throws IOException {
+		ByteArrayOutputStream baos = new ByteArrayOutputStream();
+		ObjectOutputStream oos = new ObjectOutputStream(baos);
 		oos.writeObject(this);
-		oos.flush();
+		return baos.toString();
 	}
 
-	public static Token deserialize(InputStream in) throws Exception {
-		ObjectInputStream ois = new ObjectInputStream(in);
+	public static Token deserialize(String serialized) throws IOException, ClassNotFoundException {
+		ByteArrayInputStream bais = new ByteArrayInputStream(serialized.getBytes());
+		ObjectInputStream ois = new ObjectInputStream(bais);
 		return (Token) ois.readObject();
 	}
 
