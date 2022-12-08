@@ -3,10 +3,10 @@ package sim;
 import java.io.*;
 import java.net.*;
 
-public class RoomServer extends ThreadedServer {
+public class SimulationServer extends ThreadedServer {
 	private Room room;
 
-	public RoomServer(Room room) throws IOException {
+	public SimulationServer(Room room) throws IOException {
 		super();
 		this.room = room;
 	}

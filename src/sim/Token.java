@@ -1,6 +1,7 @@
 package sim;
 
 import java.io.*;
+import java.util.Base64;
 
 public class Token implements Serializable {
 	public int placesLeft;
@@ -16,11 +17,12 @@ public class Token implements Serializable {
 		ByteArrayOutputStream baos = new ByteArrayOutputStream();
 		ObjectOutputStream oos = new ObjectOutputStream(baos);
 		oos.writeObject(this);
-		return baos.toString();
+		return Base64.getEncoder().encodeToString(baos.toByteArray());
 	}
 
 	public static Token deserialize(String serialized) throws IOException, ClassNotFoundException {
-		ByteArrayInputStream bais = new ByteArrayInputStream(serialized.getBytes());
+		byte[] bytes = Base64.getDecoder().decode(serialized);
+		ByteArrayInputStream bais = new ByteArrayInputStream(bytes);
 		ObjectInputStream ois = new ObjectInputStream(bais);
 		return (Token) ois.readObject();
 	}

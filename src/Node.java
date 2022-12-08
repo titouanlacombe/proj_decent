@@ -1,6 +1,7 @@
 import java.net.*;
 
 import sim.Controller;
+import sim.Protocol;
 import sim.Token;
 import utils.*;
 
@@ -53,33 +54,26 @@ public class Node {
 	}
 
 	public boolean handleRequest(Socket clientSocket) throws Exception {
-		String request = new String(clientSocket.getInputStream().readAllBytes());
-		System.out.println("Received request: " + request);
-
-		String[] args = request.split(" ");
-		String command = args[0];
+		String message = new String(clientSocket.getInputStream().readAllBytes());
+		String command = Protocol.getCommand(message);
+		System.out.println("Received command: '" + command + "'");
 
 		switch (command) {
-			case "exit":
-				System.out.println("Exiting");
+			case Protocol.TOKEN:
+				Token token = Protocol.receiveToken(message);
+				this.tokenRequest(token);
+				break;
+			case Protocol.EXIT:
 				return true;
-			case "token":
-				this.tokenRequest(args);
-				return false;
 			default:
-				System.out.println("Error: Invalid command: '" + command + "'");
-				return false;
+				System.out.println("Error: Invalid command");
+				break;
 		}
+
+		return false;
 	}
 
-	public void tokenRequest(String[] args) throws Exception {
-		if (args.length != 2) {
-			System.out.println("Error: Invalid number of arguments");
-			System.out.println("Usage: token <token>");
-			return;
-		}
-
-		Token token = Token.deserialize(args[1]);
+	public void tokenRequest(Token token) throws Exception {
 		System.out.println("Received token: " + token);
 
 		// Run node controller
@@ -87,9 +81,7 @@ public class Node {
 
 		// Call next node
 		Thread.sleep(1000);
-		Socket nextNode = new Socket(this.nextNodeAddress.ip, this.nextNodeAddress.port);
-		nextNode.getOutputStream().write(("token " + token.serialize()).getBytes());
-		nextNode.close();
+		Protocol.sendToken(this.nextNodeAddress, token);
 	}
 
 	public static void main(String[] args) {

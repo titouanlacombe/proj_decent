@@ -2,6 +2,7 @@ import java.util.*;
 import java.io.*;
 import java.net.*;
 
+import sim.Protocol;
 import sim.Token;
 import utils.*;
 
@@ -63,9 +64,7 @@ public class Manager {
 		// Sending start message to node 0
 		System.out.println("Sending start message to node 0");
 		FullAddress node0 = nodes.get(0);
-		Socket socket = new Socket(node0.ip, node0.port);
-		socket.getOutputStream().write(("token " + initialToken.serialize()).getBytes());
-		socket.close();
+		Protocol.sendToken(node0, initialToken);
 
 		System.out.println("Nodes setup complete, exiting");
 		serverSocket.close();
