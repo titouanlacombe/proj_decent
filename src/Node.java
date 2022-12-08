@@ -8,6 +8,7 @@ import utils.*;
 public class Node {
 	Controller controller;
 	FullAddress nextNodeAddress;
+	FullAddress simulatorAddress;
 
 	// Args: manager_ip:manager_port
 	public void _main(String[] args) throws Exception {
@@ -78,6 +79,9 @@ public class Node {
 
 		// Run node controller
 		controller.run(token);
+
+		// Send new controller state to simulation server
+		Protocol.sendController(this.simulatorAddress, controller);
 
 		// Call next node
 		Thread.sleep(1000);

@@ -2,12 +2,30 @@ package sim;
 
 import java.io.*;
 import java.net.*;
+import java.util.Base64;
 
 import utils.FullAddress;
 
 public class Protocol {
 	public static final String TOKEN = "TOKEN";
 	public static final String EXIT = "EXIT";
+	public static final String CONTROLLER = "CONTROLLER";
+
+	public static String serialize(Object o) throws Exception {
+		ByteArrayOutputStream baos = new ByteArrayOutputStream();
+		ObjectOutputStream oos = new ObjectOutputStream(baos);
+		oos.writeObject(o);
+		Base64.Encoder encoder = Base64.getEncoder();
+		return encoder.encodeToString(baos.toByteArray());
+	}
+
+	public static Object deserialize(String serialized) throws Exception {
+		Base64.Decoder decoder = Base64.getDecoder();
+		byte[] bytes = decoder.decode(serialized);
+		ByteArrayInputStream bais = new ByteArrayInputStream(bytes);
+		ObjectInputStream ois = new ObjectInputStream(bais);
+		return ois.readObject();
+	}
 
 	public static void sendRequest(FullAddress address, String command, String[] args) throws Exception {
 		Socket socket = new Socket(address.ip, address.port);
@@ -33,11 +51,24 @@ public class Protocol {
 	}
 
 	public static void sendToken(FullAddress address, Token token) throws Exception {
-		sendRequest(address, Protocol.TOKEN, new String[] { token.serialize() });
+		sendRequest(address, TOKEN, new String[] { serialize(token) });
 	}
 
 	public static Token receiveToken(String message) throws Exception {
 		String[] args = getArgs(message);
-		return Token.deserialize(args[0]);
+		return (Token) deserialize(args[0]);
+	}
+
+	public static void sendExit(FullAddress address) throws Exception {
+		sendRequest(address, EXIT, new String[] {});
+	}
+
+	public static void sendController(FullAddress address, Controller controller) throws Exception {
+		sendRequest(address, CONTROLLER, new String[] { serialize(controller) });
+	}
+
+	public static Controller receiveController(String message) throws Exception {
+		String[] args = getArgs(message);
+		return (Controller) deserialize(args[0]);
 	}
 }
