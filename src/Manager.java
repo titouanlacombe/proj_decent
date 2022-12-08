@@ -2,6 +2,7 @@ import java.util.*;
 import java.io.*;
 import java.net.*;
 
+import sim.Token;
 import utils.*;
 
 public class Manager {
@@ -18,27 +19,29 @@ public class Manager {
 		FullAddress managerAddress = FullAddress.fromSocket(serverSocket);
 		System.out.println("Manager started at " + managerAddress);
 
-		// Write address to "server.txt" file for automation
+		// Write address to file file for automation
 		File server_file = new File("./data/manager_address.txt");
 		server_file.getParentFile().mkdirs();
 		server_file.createNewFile();
 		FileWriter writer = new FileWriter(server_file);
-		writer.write(managerAddress.toString() + "\n");
+		writer.write(managerAddress + "\n");
 		writer.close();
 
 		// Wait for nodes
-		System.out.println("Waiting for " + args[0] + " nodes to connect");
-		ArrayList<FullAddress> nodes = new ArrayList<>();
 		int numNodes = Integer.parseInt(args[0]);
+		System.out.println("Waiting for " + numNodes + " nodes to connect");
+		ArrayList<FullAddress> nodes = new ArrayList<>();
 		for (int i = 0; i < numNodes; i++) {
+			// Get message
 			Socket socket = serverSocket.accept();
-			String message = new String(socket.getInputStream().readAllBytes());
-			FullAddress node = FullAddress.fromString(message);
-
-			System.out.println("Node " + i + " connected: " + node);
-
-			nodes.add(node);
+			String node_message = new String(socket.getInputStream().readAllBytes());
 			socket.close();
+
+			// Parse message
+			FullAddress node_address = FullAddress.fromString(node_message);
+			System.out.println("Node " + i + " registered with callback address: " + node_address);
+
+			nodes.add(node_address);
 		}
 
 		// Callback nodes with their next node
@@ -53,13 +56,17 @@ public class Manager {
 			socket.close();
 		}
 
-		// Telling node 0 to start
-		System.out.println("Telling node 0 to start");
+		// Create initial token
+		int roomCapacity = Integer.parseInt(args[1]);
+		Token initialToken = new Token(roomCapacity);
+
+		// Sending start message to node 0
+		System.out.println("Sending start message to node 0");
 		FullAddress node0 = nodes.get(0);
 		Socket socket = new Socket(node0.ip, node0.port);
-		int roomCapacity = Integer.parseInt(args[1]);
-		String message = "start " + roomCapacity;
-		socket.getOutputStream().write(message.getBytes());
+		OutputStream os = socket.getOutputStream();
+		os.write("start ".getBytes());
+		initialToken.serialize(os);
 		socket.close();
 
 		System.out.println("Nodes setup complete, exiting");

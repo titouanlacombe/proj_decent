@@ -12,13 +12,13 @@ public class Token implements Serializable {
 	public Token() {
 	}
 
-	public void sendTo(OutputStream out) throws IOException {
+	public void serialize(OutputStream out) throws IOException {
 		ObjectOutputStream oos = new ObjectOutputStream(out);
 		oos.writeObject(this);
 		oos.flush();
 	}
 
-	public static Token receiveFrom(InputStream in) throws Exception {
+	public static Token deserialize(InputStream in) throws Exception {
 		ObjectInputStream ois = new ObjectInputStream(in);
 		return (Token) ois.readObject();
 	}
