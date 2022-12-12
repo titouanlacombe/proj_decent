@@ -22,8 +22,7 @@ public class Simulator {
 		ProcessBuilder managerBuilder = new ProcessBuilder(
 				"java", "-cp", "bin", "Manager",
 				String.valueOf(config.numNodes),
-				String.valueOf(config.roomCapacity),
-				simulatorAddress.toString());
+				String.valueOf(config.roomCapacity));
 		managerBuilder.redirectOutput(ProcessBuilder.Redirect.INHERIT);
 		managerBuilder.redirectError(ProcessBuilder.Redirect.INHERIT);
 		Process manager = managerBuilder.start();
@@ -46,7 +45,8 @@ public class Simulator {
 		System.out.println("Starting " + config.numNodes + " nodes");
 		ProcessBuilder nodeBuilder = new ProcessBuilder(
 				"java", "-cp", "bin", "Node",
-				managerAddress.toString());
+				managerAddress.toString(),
+				simulatorAddress.toString());
 		nodeBuilder.redirectOutput(ProcessBuilder.Redirect.INHERIT);
 		nodeBuilder.redirectError(ProcessBuilder.Redirect.INHERIT);
 
