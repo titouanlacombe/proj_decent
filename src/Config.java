@@ -3,6 +3,8 @@ public class Config {
 	public double entryRate;
 	public double visitTimeMean;
 	public double visitTimeStdDev;
+	public int roomCapacity;
+	public int numNodes;
 
 	// --- UI config ---
 
@@ -12,6 +14,8 @@ public class Config {
 		config.entryRate = 1;
 		config.visitTimeMean = 1;
 		config.visitTimeStdDev = 0.5;
+		config.roomCapacity = 10;
+		config.numNodes = 3;
 
 		return config;
 	}

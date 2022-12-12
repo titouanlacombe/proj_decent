@@ -15,5 +15,9 @@ start_manager:
 start_node:
 	java -cp bin Node $(ARGS)
 
+start_simulator:
+	java -cp bin Simulator $(ARGS)
+
 run_manager: build start_manager
 run_node: build start_node
+run_simulator: build start_simulator
