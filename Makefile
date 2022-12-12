@@ -6,11 +6,18 @@ ARGS = $(wordlist 2,$(words $(MAKECMDGOALS)),$(MAKECMDGOALS))
 build:
 	javac -d bin -cp bin src/**/*.java src/*.java
 
-run_manager: build
-	java -cp bin Manager $(ARGS)
-
-run_node: build
-	java -cp bin Node $(ARGS)
-
 clean:
 	rm -rf bin/*
+
+start_manager:
+	java -cp bin Manager $(ARGS)
+
+start_node:
+	java -cp bin Node $(ARGS)
+
+start_simulator:
+	java -cp bin Simulator $(ARGS)
+
+run_manager: build start_manager
+run_node: build start_node
+run_simulator: build start_simulator
