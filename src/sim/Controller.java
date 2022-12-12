@@ -1,6 +1,8 @@
 package sim;
 
-public class Controller {
+import java.io.Serializable;
+
+public class Controller implements Serializable {
 	private int entering; // Waiting to enter
 	private int leaving; // Waiting to leave
 

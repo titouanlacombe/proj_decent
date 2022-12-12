@@ -1,6 +1,8 @@
 package sim;
 
-public class Token {
+import java.io.Serializable;
+
+public class Token implements Serializable {
 	public int placesLeft;
 
 	public Token(int placesLeft) {

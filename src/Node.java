@@ -34,9 +34,15 @@ public class Node {
 		System.out.println("Waiting for manager to send next node");
 		Socket rep_socket = serverSocket.accept();
 		String resp = new String(rep_socket.getInputStream().readAllBytes());
-		this.nextNodeAddress = FullAddress.fromString(resp);
-		System.out.println("Received " + this.nextNodeAddress + " from manager");
 		rep_socket.close();
+		String[] addresses = resp.split(" ");
+		this.nextNodeAddress = FullAddress.fromString(addresses[0]);
+		System.out.println("Received next: " + this.nextNodeAddress + " from manager");
+
+		if (!addresses[1].equals("null")) {
+			this.simulatorAddress = FullAddress.fromString(addresses[1]);
+			System.out.println("Received simulator: " + this.simulatorAddress + " from manager");
+		}
 
 		// Start controller
 		System.out.println("Setup complete, starting node");
@@ -81,7 +87,9 @@ public class Node {
 		controller.run(token);
 
 		// Send new controller state to simulation server
-		Protocol.sendController(this.simulatorAddress, controller);
+		if (this.simulatorAddress != null) {
+			Protocol.sendController(this.simulatorAddress, controller);
+		}
 
 		// Call next node
 		Thread.sleep(1000);
