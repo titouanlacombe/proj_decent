@@ -1,4 +1,5 @@
 import java.net.*;
+import java.util.UUID;
 
 import sim.Controller;
 import sim.Protocol;
@@ -6,6 +7,7 @@ import sim.Token;
 import utils.*;
 
 public class Node {
+	String uuid;
 	Controller controller;
 	FullAddress nextNodeAddress;
 	FullAddress simulatorAddress;
@@ -17,6 +19,8 @@ public class Node {
 			System.out.println("Usage: java Node manager_ip:manager_port [simulator_ip:simulator_port]");
 			return;
 		}
+
+		this.uuid = UUID.randomUUID().toString();
 
 		// Get simulator address
 		if (args.length > 1) {
@@ -83,12 +87,17 @@ public class Node {
 	public void tokenRequest(Token token) throws Exception {
 		System.out.println("Received token: " + token);
 
+		int old_entering = controller.get_entering();
+		int old_leaving = controller.get_leaving();
+
 		// Run node controller
 		controller.run(token);
 
 		// Send new controller state to simulation server
 		if (this.simulatorAddress != null) {
-			Protocol.sendController(this.simulatorAddress, controller);
+			int entered = controller.get_entering() - old_entering;
+			int left = controller.get_leaving() - old_leaving;
+			Protocol.sendNodeUpdate(this.simulatorAddress, this.uuid, entered, left);
 		}
 
 		// Call next node

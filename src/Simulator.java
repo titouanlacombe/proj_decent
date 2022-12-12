@@ -1,11 +1,12 @@
 import java.io.*;
-import java.net.ServerSocket;
+import java.net.*;
 
+import sim.Protocol;
 import utils.FullAddress;
 
 public class Simulator {
 	// Args: num_nodes => write to stdout the ip:port of manager
-	public static void _main(String[] args) throws Exception {
+	public void _main(String[] args) throws Exception {
 		Config config = Config._default();
 
 		// Create server
@@ -65,7 +66,15 @@ public class Simulator {
 
 		// Start simulation
 		System.out.println("Startup complete, starting simulation");
-		Simulator.serve(serverSocket, config);
+		while (true) {
+			Socket clientSocket = serverSocket.accept();
+			boolean exit = this.handleRequest(clientSocket);
+			clientSocket.close();
+
+			if (exit) {
+				break;
+			}
+		}
 
 		// Kill nodes
 		System.out.println("Killing nodes");
@@ -76,13 +85,35 @@ public class Simulator {
 		System.out.println("Done");
 	}
 
-	public static void serve(ServerSocket serverSocket, Config config) throws Exception {
-		// TODO
+	public boolean handleRequest(Socket clientSocket) throws Exception {
+		String message = new String(clientSocket.getInputStream().readAllBytes());
+		String command = Protocol.getCommand(message);
+		System.out.println("Received command: '" + command + "'");
+
+		switch (command) {
+			case Protocol.NODE_UPDATE:
+				String uuid = Protocol.receiveUUID(message);
+				int[] enteredLeft = Protocol.receiveEnteredLeft(message);
+				this.nodeUpdate(uuid, enteredLeft[0], enteredLeft[1]);
+				break;
+			case Protocol.EXIT:
+				return true;
+			default:
+				System.out.println("Error: Invalid command");
+				break;
+		}
+
+		return false;
+	}
+
+	public void nodeUpdate(String sender_uuid, int entered, int left) {
+		System.out.println("Node update from " + sender_uuid + ": " + entered + " entered, " + left + " left");
 	}
 
 	public static void main(String[] args) {
+		Simulator simulator = new Simulator();
 		try {
-			_main(args);
+			simulator._main(args);
 		} catch (Exception e) {
 			System.out.println("Error in main thread");
 			e.printStackTrace();

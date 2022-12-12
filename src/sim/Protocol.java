@@ -9,7 +9,7 @@ import utils.FullAddress;
 public class Protocol {
 	public static final String TOKEN = "TOKEN";
 	public static final String EXIT = "EXIT";
-	public static final String CONTROLLER = "CONTROLLER";
+	public static final String NODE_UPDATE = "NODE_UPDATE";
 
 	public static String serialize(Object o) throws Exception {
 		ByteArrayOutputStream baos = new ByteArrayOutputStream();
@@ -63,12 +63,20 @@ public class Protocol {
 		sendRequest(address, EXIT, new String[] {});
 	}
 
-	public static void sendController(FullAddress address, Controller controller) throws Exception {
-		sendRequest(address, CONTROLLER, new String[] { serialize(controller) });
+	public static void sendNodeUpdate(FullAddress address, String uuid, int entered, int left) throws Exception {
+		sendRequest(address, NODE_UPDATE, new String[] { uuid, String.valueOf(entered), String.valueOf(left) });
 	}
 
-	public static Controller receiveController(String message) throws Exception {
+	public static String receiveUUID(String message) throws Exception {
 		String[] args = getArgs(message);
-		return (Controller) deserialize(args[0]);
+		return args[0];
+	}
+
+	public static int[] receiveEnteredLeft(String message) throws Exception {
+		String[] args = getArgs(message);
+		int[] enteredLeft = new int[2];
+		enteredLeft[0] = Integer.parseInt(args[1]);
+		enteredLeft[1] = Integer.parseInt(args[2]);
+		return enteredLeft;
 	}
 }
