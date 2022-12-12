@@ -55,14 +55,6 @@ public class Controller implements Serializable {
 		leaving++;
 	}
 
-	public int get_entering() {
-		return entering;
-	}
-
-	public int get_leaving() {
-		return leaving;
-	}
-
 	public String toString() {
 		return "Controller (" + entering + ", " + leaving + ")";
 	}
