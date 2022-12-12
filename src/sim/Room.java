@@ -1,21 +1,34 @@
 package sim;
 
 import java.util.*;
+
+import utils.FullAddress;
 import utils.NormalGenerator;
 import utils.Timer;
 
 public class Room {
 	private SortedSet<Double> leavingTimes;
+	private FullAddress[] controllers;
 	private double entryRate;
 	private Timer timer;
+	private double lastUpdate;
+	private double now;
 	private NormalGenerator visitTimeGenerator;
-	
-	public Room(double entryRate, NormalGenerator visitTimeGenerator) {
+
+	public Room(double timeScale, double entryRate, NormalGenerator visitTimeGenerator) {
 		this.entryRate = entryRate;
 		this.visitTimeGenerator = visitTimeGenerator;
 		this.leavingTimes = new TreeSet<Double>(); // TODO verify that this is the right type
 
-		this.timer = new Timer();
+		this.timer = new Timer(timeScale);
+	}
+
+	private double elapsed() {
+		return timer.now() - lastUpdate;
+	}
+
+	private FullAddress randomController() {
+		return controllers[(int) (Math.random() * controllers.length)];
 	}
 
 	// Make a person enter the room
@@ -23,31 +36,49 @@ public class Room {
 		leavingTimes.add(visitTimeGenerator.get() + timer.now());
 	}
 
+	private void arrive() {
+		FullAddress controller = randomController();
+		// TODO call arrive event
+	}
+
 	// Make persons leave the room if they have to
 	public void leaving() {
-		Double time = timer.now();
-		while (leavingTimes.first() < time) {
+		while (leavingTimes.first() < now) {
 			leavingTimes.remove(leavingTimes.first());
-			// TODO call random server (output door random)
+
+			FullAddress controller = randomController();
+			// TODO call leave event
 		}
 	}
 
 	// Make persons wait at the doors
 	public void arriving() {
-		for (int i = 0; i < (int) entryRate; i++) {
-			arrive();
+		double average = entryRate * elapsed();
+		int count = (int) average;
+
+		// Add remainder to the count on a random basis
+		double remainder = average - count;
+		if (Math.random() < remainder) {
+			count++;
 		}
 
-		if (Math.random() < entryRate % 1) {
+		System.out.println(count + " persons arriving");
+		for (int i = 0; i < count; i++) {
 			arrive();
 		}
 	}
 
-	private void arrive() {
-		// TODO call random server (input door random)
-	}
+	public void update(int entered, int left) {
+		System.out.println("Updating room, entered: " + entered + ", left: " + left);
+		for (int i = 0; i < entered; i++) {
+			entering();
+		}
 
-	public void run() {
+		// Do nothing with left as they are already deleted from leavingTimes
+
+		now = timer.now();
+		System.out.println("Updating room, elapsed: " + (elapsed() * 1000) + " ms");
+
 		arriving();
 		leaving();
 	}

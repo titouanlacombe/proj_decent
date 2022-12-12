@@ -2,13 +2,26 @@ import java.io.*;
 import java.net.*;
 
 import sim.Protocol;
+import sim.Room;
 import utils.FullAddress;
+import utils.NormalGenerator;
 
 public class Simulator {
+	Config config;
+	long lastUpdate;
+	Room room;
+	FullAddress[] nodeAddresses;
+
+	public Simulator(Config config) {
+		this.config = config;
+		this.lastUpdate = System.currentTimeMillis();
+		this.room = new Room(config.timeScale, config.entryRate,
+				new NormalGenerator(config.visitTimeMean, config.visitTimeStdDev, config.randSeed));
+		this.nodeAddresses = new FullAddress[config.numNodes];
+	}
+
 	// Args: num_nodes => write to stdout the ip:port of manager
 	public void _main(String[] args) throws Exception {
-		Config config = Config._default();
-
 		// Create server
 		ServerSocket serverSocket = new ServerSocket(0);
 		FullAddress simulatorAddress = FullAddress.fromSocket(serverSocket);
@@ -94,7 +107,7 @@ public class Simulator {
 			case Protocol.NODE_UPDATE:
 				String uuid = Protocol.receiveUUID(message);
 				int[] enteredLeft = Protocol.receiveEnteredLeft(message);
-				this.nodeUpdate(uuid, enteredLeft[0], enteredLeft[1]);
+				this.room.update(enteredLeft[0], enteredLeft[1]);
 				break;
 			case Protocol.EXIT:
 				return true;
@@ -106,12 +119,9 @@ public class Simulator {
 		return false;
 	}
 
-	public void nodeUpdate(String sender_uuid, int entered, int left) {
-		System.out.println("Node update from " + sender_uuid + ": " + entered + " entered, " + left + " left");
-	}
-
 	public static void main(String[] args) {
-		Simulator simulator = new Simulator();
+		Simulator simulator = new Simulator(Config._default());
+
 		try {
 			simulator._main(args);
 		} catch (Exception e) {
