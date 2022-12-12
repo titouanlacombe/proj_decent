@@ -9,10 +9,10 @@ build:
 clean:
 	rm -rf bin/*
 
-start_manager: build
+start_manager:
 	java -cp bin Manager $(ARGS)
 
-start_node: build
+start_node:
 	java -cp bin Node $(ARGS)
 
 run_manager: build start_manager
