@@ -11,7 +11,7 @@ public class Manager {
 	public static void _main(String[] args) throws Exception {
 		if (args.length < 2) {
 			System.out.println("Error: Invalid number of arguments");
-			System.out.println("Usage: java Manager num_nodes room_capacity [simulator_ip:simulator_port]");
+			System.out.println("Usage: java Manager num_nodes room_capacity");
 			return;
 		}
 
@@ -45,13 +45,6 @@ public class Manager {
 			nodes.add(node_address);
 		}
 
-		// Get simulator address
-		String simulatorAddress = "null";
-		if (args.length > 2) {
-			simulatorAddress = args[2];
-		}
-		System.out.println("Simulator address: " + simulatorAddress);
-
 		// Callback nodes with their next node
 		for (int i = 0; i < numNodes; i++) {
 			FullAddress current = nodes.get(i);
@@ -60,8 +53,7 @@ public class Manager {
 			System.out.println("Calling back " + current + " with " + next);
 
 			Socket socket = new Socket(current.ip, current.port);
-			String message = next.toString() + " " + simulatorAddress;
-			socket.getOutputStream().write(message.getBytes());
+			socket.getOutputStream().write(next.toString().getBytes());
 			socket.close();
 		}
 

@@ -12,10 +12,16 @@ public class Node {
 
 	// Args: manager_ip:manager_port
 	public void _main(String[] args) throws Exception {
-		if (args.length != 1) {
+		if (args.length < 1) {
 			System.out.println("Error: Invalid number of arguments");
-			System.out.println("Usage: java Node manager_ip:manager_port");
+			System.out.println("Usage: java Node manager_ip:manager_port [simulator_ip:simulator_port]");
 			return;
+		}
+
+		// Get simulator address
+		if (args.length > 1) {
+			simulatorAddress = FullAddress.fromString(args[1]);
+			System.out.println("Got simulator address: " + simulatorAddress);
 		}
 
 		// Creating server
@@ -35,14 +41,8 @@ public class Node {
 		Socket rep_socket = serverSocket.accept();
 		String resp = new String(rep_socket.getInputStream().readAllBytes());
 		rep_socket.close();
-		String[] addresses = resp.split(" ");
-		this.nextNodeAddress = FullAddress.fromString(addresses[0]);
+		this.nextNodeAddress = FullAddress.fromString(resp);
 		System.out.println("Received next: " + this.nextNodeAddress + " from manager");
-
-		if (!addresses[1].equals("null")) {
-			this.simulatorAddress = FullAddress.fromString(addresses[1]);
-			System.out.println("Received simulator: " + this.simulatorAddress + " from manager");
-		}
 
 		// Start controller
 		System.out.println("Setup complete, starting node");
