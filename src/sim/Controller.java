@@ -54,4 +54,16 @@ public class Controller implements Serializable {
 	public void add_leaving() {
 		leaving++;
 	}
+
+	public int get_entering() {
+		return entering;
+	}
+
+	public int get_leaving() {
+		return leaving;
+	}
+
+	public String toString() {
+		return "Controller (" + entering + ", " + leaving + ")";
+	}
 }
