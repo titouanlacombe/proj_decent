@@ -43,6 +43,10 @@ public class Room {
 
 	// Make persons leave the room if they have to
 	public void leaving() {
+		if (leavingTimes.isEmpty()) {
+			return;
+		}
+
 		while (leavingTimes.first() < now) {
 			leavingTimes.remove(leavingTimes.first());
 
