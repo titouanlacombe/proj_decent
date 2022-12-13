@@ -35,7 +35,7 @@ public class Simulator {
 		// Start manager subprocess
 		System.out.println("Starting manager");
 		ProcessBuilder managerBuilder = new ProcessBuilder(
-				"java", "-cp", "bin", "Manager",
+				"java", "-cp", "src", "Manager",
 				String.valueOf(config.numNodes),
 				String.valueOf(config.roomCapacity));
 		managerBuilder.redirectOutput(ProcessBuilder.Redirect.INHERIT);
@@ -59,7 +59,7 @@ public class Simulator {
 		// Start nodes subprocesses
 		System.out.println("Starting " + config.numNodes + " nodes");
 		ProcessBuilder nodeBuilder = new ProcessBuilder(
-				"java", "-cp", "bin", "Node",
+				"java", "-cp", "src", "Node",
 				managerAddress.toString(),
 				simulatorAddress.toString());
 		nodeBuilder.redirectOutput(ProcessBuilder.Redirect.INHERIT);
