@@ -35,17 +35,6 @@ public class Room {
 		return controllers[(int) (Math.random() * controllers.length)];
 	}
 
-	// Make a person enter the room
-	public void entering() {
-		leavingTimes.add(visitTimeGenerator.get() + now);
-	}
-
-	private void arrive() throws Exception {
-		FullAddress controller = randomController();
-		System.out.println("Person arriving to " + controller);
-		Protocol.sendArrival(controller);
-	}
-
 	// Make persons leave the room if they have to
 	public void leaving() throws Exception {
 		while (!leavingTimes.isEmpty() && leavingTimes.first() < now) {
@@ -70,14 +59,16 @@ public class Room {
 
 		System.out.println(count + " persons arriving");
 		for (int i = 0; i < count; i++) {
-			arrive();
+			FullAddress controller = randomController();
+			System.out.println("Person arriving to " + controller);
+			Protocol.sendArrival(controller);
 		}
 	}
 
 	public void update(int entered, int left) throws Exception {
 		System.out.println("Updating room, entered: " + entered + ", left: " + left);
 		for (int i = 0; i < entered; i++) {
-			entering();
+			leavingTimes.add(visitTimeGenerator.get() + now);
 		}
 
 		// Do nothing with left as they are already deleted from leavingTimes
