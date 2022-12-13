@@ -1,8 +1,8 @@
 import java.io.*;
 import java.net.*;
 
-import sim.Protocol;
 import sim.Room;
+import sim.protocol.Protocol;
 import utils.FullAddress;
 import utils.NormalGenerator;
 

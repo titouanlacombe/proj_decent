@@ -1,9 +1,10 @@
-package sim;
+package sim.protocol;
 
 import java.io.*;
 import java.net.*;
 import java.util.Base64;
 
+import sim.Token;
 import utils.FullAddress;
 
 public class Protocol {

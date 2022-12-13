@@ -2,8 +2,8 @@ import java.util.*;
 import java.io.*;
 import java.net.*;
 
-import sim.Protocol;
 import sim.Token;
+import sim.protocol.Protocol;
 import utils.*;
 
 public class Manager {

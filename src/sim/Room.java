@@ -2,6 +2,7 @@ package sim;
 
 import java.util.*;
 
+import sim.protocol.Protocol;
 import utils.FullAddress;
 import utils.NormalGenerator;
 import utils.Timer;

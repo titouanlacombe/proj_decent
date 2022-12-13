@@ -2,8 +2,8 @@ import java.net.*;
 import java.util.UUID;
 
 import sim.Controller;
-import sim.Protocol;
 import sim.Token;
+import sim.protocol.Protocol;
 import utils.*;
 
 public class Node {
