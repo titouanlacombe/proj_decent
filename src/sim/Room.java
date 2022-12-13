@@ -2,7 +2,7 @@ package sim;
 
 import java.util.*;
 
-import sim.protocol.Protocol;
+import sim.protocol.*;
 import utils.FullAddress;
 import utils.NormalGenerator;
 import utils.Timer;
@@ -43,7 +43,7 @@ public class Room {
 
 			FullAddress controller = randomController();
 			System.out.println("Person leaving to " + controller);
-			Protocol.sendDeparture(controller);
+			Protocol.send(controller, new DepartureRequest());
 		}
 	}
 
@@ -62,18 +62,28 @@ public class Room {
 		for (int i = 0; i < count; i++) {
 			FullAddress controller = randomController();
 			System.out.println("Person arriving to " + controller);
-			Protocol.sendArrival(controller);
+			Protocol.send(controller, new ArrivalRequest());
 		}
 	}
 
-	public void update(int entered, int left) throws Exception {
-		System.out.println("Updating room, entered: " + entered + ", left: " + left);
+	public void update(String sender_uuid, Controller updated) throws Exception {
+		System.out.println("Updating controller " + sender_uuid);
+
+		// Update controller state
+		// Controller old = controllers.get(sender_uuid);
+		Controller old = null;
+		if (old == null) {
+			old = new Controller();
+		}
+
+		int entered = old.get_entering() - updated.get_entering();
 		for (int i = 0; i < entered; i++) {
 			leavingTimes.add(visitTimeGenerator.get() + now);
 		}
 
-		// Do nothing with left as they are already deleted from leavingTimes
+		// controllers.put(sender_uuid, updated);
 
+		// Update arring/leaving
 		now = timer.now();
 		elapsed = now - lastUpdate;
 		lastUpdate = now;

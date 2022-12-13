@@ -2,7 +2,7 @@ import java.io.*;
 import java.net.*;
 
 import sim.Room;
-import sim.protocol.Protocol;
+import sim.protocol.*;
 import utils.FullAddress;
 import utils.NormalGenerator;
 
@@ -112,24 +112,25 @@ public class Simulator {
 	}
 
 	public boolean handleRequest(Socket clientSocket) throws Exception {
-		String message = new String(clientSocket.getInputStream().readAllBytes());
-		String command = Protocol.getCommand(message);
-		System.out.println("Received command: '" + command + "'");
+		Request request = Protocol.recv(clientSocket);
+		System.out.println("[SIMULATOR] " + request);
 
-		switch (command) {
-			case Protocol.NODE_UPDATE:
-				String uuid = Protocol.receiveUUID(message);
-				int[] enteredLeft = Protocol.receiveEnteredLeft(message);
-				this.room.update(enteredLeft[0], enteredLeft[1]);
-				break;
-			case Protocol.EXIT:
+		switch (request.getCode()) {
+			case ExitRequest.CODE:
 				return true;
+			case SimulationUpdateRequest.CODE:
+				simulationUpdate((SimulationUpdateRequest) request);
+				break;
 			default:
-				System.out.println("Error: Invalid command");
+				System.out.println("Error: Invalid request code");
 				break;
 		}
 
 		return false;
+	}
+
+	public void simulationUpdate(SimulationUpdateRequest request) throws Exception {
+		room.update(request.sender_uuid, request.controller);
 	}
 
 	public static void main(String[] args) {
