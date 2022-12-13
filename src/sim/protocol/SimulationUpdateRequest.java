@@ -15,6 +15,10 @@ public class SimulationUpdateRequest extends Request {
 	public SimulationUpdateRequest() {
 	}
 
+	public String getCode() {
+		return CODE;
+	}
+
 	public void deserialize(String message) throws Exception {
 		String[] parts = message.split(" ");
 		sender_uuid = parts[0];

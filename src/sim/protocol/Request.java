@@ -4,15 +4,7 @@ import java.io.*;
 import java.util.Base64;
 
 public abstract class Request {
-	// Can't do abstract static variables, so we have to do this
-	public static final String CODE = null;
-
-	public String getCode() throws Exception {
-		if (CODE == null) {
-			throw new RuntimeException("CODE not implemented for " + getClass().getName());
-		}
-		return CODE;
-	}
+	abstract public String getCode();
 
 	abstract void deserialize(String message) throws Exception;
 

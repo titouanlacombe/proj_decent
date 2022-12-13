@@ -6,6 +6,10 @@ public class TokenRequest extends Request {
 	public static final String CODE = "TOKEN";
 	public Token token;
 
+	public String getCode() {
+		return CODE;
+	}
+
 	public TokenRequest(Token token) {
 		this.token = token;
 	}
