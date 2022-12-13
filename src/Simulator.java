@@ -10,14 +10,13 @@ public class Simulator {
 	Config config;
 	long lastUpdate;
 	Room room;
-	FullAddress[] nodeAddresses;
 
 	public Simulator(Config config) {
 		this.config = config;
 		this.lastUpdate = System.currentTimeMillis();
-		this.room = new Room(config.timeScale, config.entryRate,
+		this.room = new Room(
+				config.timeScale, config.entryRate,
 				new NormalGenerator(config.visitTimeMean, config.visitTimeStdDev, config.randSeed));
-		this.nodeAddresses = new FullAddress[config.numNodes];
 	}
 
 	// Args: num_nodes => write to stdout the ip:port of manager
@@ -27,9 +26,11 @@ public class Simulator {
 		FullAddress simulatorAddress = FullAddress.fromSocket(serverSocket);
 		System.out.println("Simulator started at " + simulatorAddress);
 
-		// Delete manager_address.txt
+		// Delete files from previous runs
 		File managerAddressFile = new File("./data/manager_address.txt");
+		File nodesFile = new File("./data/nodes_addresses.txt");
 		managerAddressFile.delete();
+		nodesFile.delete();
 
 		// Start manager subprocess
 		System.out.println("Starting manager");
@@ -76,6 +77,18 @@ public class Simulator {
 			System.out.println("Manager exited with code " + code);
 			System.exit(code);
 		}
+
+		// Recover nodes addresses from nodes_addresses.txt
+		System.out.println("Recovering nodes addresses");
+		reader = new BufferedReader(new FileReader(nodesFile));
+		FullAddress[] nodesAddresses = new FullAddress[config.numNodes];
+		for (int i = 0; i < config.numNodes; i++) {
+			nodesAddresses[i] = FullAddress.fromString(reader.readLine());
+		}
+		reader.close();
+
+		// Set controllers in room
+		room.setControllers(nodesAddresses);
 
 		// Start simulation
 		System.out.println("Startup complete, starting simulation");

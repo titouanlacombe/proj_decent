@@ -10,21 +10,25 @@ public class Room {
 	private SortedSet<Double> leavingTimes;
 	private FullAddress[] controllers;
 	private double entryRate;
-	private Timer timer;
-	private double lastUpdate;
-	private double now;
 	private NormalGenerator visitTimeGenerator;
 
+	private Timer timer;
+	private double lastUpdate;
+	private double elapsed;
+	private double now;
+
 	public Room(double timeScale, double entryRate, NormalGenerator visitTimeGenerator) {
+		this.leavingTimes = new TreeSet<Double>(); // TODO verify that this is the right type
+		this.controllers = null;
 		this.entryRate = entryRate;
 		this.visitTimeGenerator = visitTimeGenerator;
-		this.leavingTimes = new TreeSet<Double>(); // TODO verify that this is the right type
 
 		this.timer = new Timer(timeScale);
+		this.lastUpdate = timer.now();
 	}
 
-	private double elapsed() {
-		return timer.now() - lastUpdate;
+	public void setControllers(FullAddress[] controllers) {
+		this.controllers = controllers;
 	}
 
 	private FullAddress randomController() {
@@ -33,7 +37,7 @@ public class Room {
 
 	// Make a person enter the room
 	public void entering() {
-		leavingTimes.add(visitTimeGenerator.get() + timer.now());
+		leavingTimes.add(visitTimeGenerator.get() + now);
 	}
 
 	private void arrive() {
@@ -57,7 +61,7 @@ public class Room {
 
 	// Make persons wait at the doors
 	public void arriving() {
-		double average = entryRate * elapsed();
+		double average = entryRate * elapsed;
 		int count = (int) average;
 
 		// Add remainder to the count on a random basis
@@ -81,7 +85,9 @@ public class Room {
 		// Do nothing with left as they are already deleted from leavingTimes
 
 		now = timer.now();
-		System.out.println("Updating room, elapsed: " + (elapsed() * 1000) + " ms");
+		elapsed = now - lastUpdate;
+		lastUpdate = now;
+		System.out.println("Updating room, elapsed: " + elapsed + " ms");
 
 		arriving();
 		leaving();

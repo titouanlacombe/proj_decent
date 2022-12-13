@@ -45,6 +45,16 @@ public class Manager {
 			nodes.add(node_address);
 		}
 
+		// Write node addresses to file for automation
+		File nodes_file = new File("./data/nodes_addresses.txt");
+		nodes_file.getParentFile().mkdirs();
+		nodes_file.createNewFile();
+		writer = new FileWriter(nodes_file);
+		for (FullAddress node : nodes) {
+			writer.write(node + "\n");
+		}
+		writer.close();
+
 		// Callback nodes with their next node
 		for (int i = 0; i < numNodes; i++) {
 			FullAddress current = nodes.get(i);
