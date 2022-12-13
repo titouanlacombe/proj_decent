@@ -42,19 +42,17 @@ public class Room {
 
 	private void arrive() throws Exception {
 		FullAddress controller = randomController();
+		System.out.println("Person arriving to " + controller);
 		Protocol.sendArrival(controller);
 	}
 
 	// Make persons leave the room if they have to
 	public void leaving() throws Exception {
-		if (leavingTimes.isEmpty()) {
-			return;
-		}
-
-		while (leavingTimes.first() < now) {
+		while (!leavingTimes.isEmpty() && leavingTimes.first() < now) {
 			leavingTimes.remove(leavingTimes.first());
 
 			FullAddress controller = randomController();
+			System.out.println("Person leaving to " + controller);
 			Protocol.sendDeparture(controller);
 		}
 	}
