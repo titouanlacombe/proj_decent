@@ -13,7 +13,7 @@ public class Config {
 	static public Config _default() {
 		Config config = new Config();
 
-		config.entryRate = 1;
+		config.entryRate = 1 / 2000.0;
 		config.visitTimeMean = 1;
 		config.visitTimeStdDev = 0.5;
 		config.roomCapacity = 10;

@@ -47,11 +47,11 @@ public class Controller implements Serializable {
 		ls1(token);
 	}
 
-	public void add_entering() {
+	public void arrival() {
 		entering++;
 	}
 
-	public void add_leaving() {
+	public void departure() {
 		leaving++;
 	}
 

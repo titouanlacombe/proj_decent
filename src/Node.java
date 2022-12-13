@@ -70,12 +70,18 @@ public class Node {
 		System.out.println("Received command: '" + command + "'");
 
 		switch (command) {
+			case Protocol.EXIT:
+				return true;
+			case Protocol.ARRIVAL:
+				controller.arrival();
+				break;
+			case Protocol.DEPARTURE:
+				controller.departure();
+				break;
 			case Protocol.TOKEN:
 				Token token = Protocol.receiveToken(message);
 				this.tokenRequest(token);
 				break;
-			case Protocol.EXIT:
-				return true;
 			default:
 				System.out.println("Error: Invalid command");
 				break;
@@ -95,8 +101,8 @@ public class Node {
 
 		// Send new controller state to simulation server
 		if (this.simulatorAddress != null) {
-			int entered = controller.get_entering() - old_entering;
-			int left = controller.get_leaving() - old_leaving;
+			int entered = old_entering - controller.get_entering();
+			int left = old_leaving - controller.get_leaving();
 			Protocol.sendNodeUpdate(this.simulatorAddress, this.uuid, entered, left);
 		}
 

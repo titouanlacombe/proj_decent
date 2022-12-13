@@ -40,13 +40,13 @@ public class Room {
 		leavingTimes.add(visitTimeGenerator.get() + now);
 	}
 
-	private void arrive() {
+	private void arrive() throws Exception {
 		FullAddress controller = randomController();
-		// TODO call arrive event
+		Protocol.sendArrival(controller);
 	}
 
 	// Make persons leave the room if they have to
-	public void leaving() {
+	public void leaving() throws Exception {
 		if (leavingTimes.isEmpty()) {
 			return;
 		}
@@ -55,12 +55,12 @@ public class Room {
 			leavingTimes.remove(leavingTimes.first());
 
 			FullAddress controller = randomController();
-			// TODO call leave event
+			Protocol.sendDeparture(controller);
 		}
 	}
 
 	// Make persons wait at the doors
-	public void arriving() {
+	public void arriving() throws Exception {
 		double average = entryRate * elapsed;
 		int count = (int) average;
 
@@ -76,7 +76,7 @@ public class Room {
 		}
 	}
 
-	public void update(int entered, int left) {
+	public void update(int entered, int left) throws Exception {
 		System.out.println("Updating room, entered: " + entered + ", left: " + left);
 		for (int i = 0; i < entered; i++) {
 			entering();

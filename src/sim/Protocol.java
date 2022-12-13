@@ -10,6 +10,8 @@ public class Protocol {
 	public static final String TOKEN = "TOKEN";
 	public static final String EXIT = "EXIT";
 	public static final String NODE_UPDATE = "NODE_UPDATE";
+	public static final String ARRIVAL = "ARRIVAL";
+	public static final String DEPARTURE = "DEPARTURE";
 
 	public static String serialize(Object o) throws Exception {
 		ByteArrayOutputStream baos = new ByteArrayOutputStream();
@@ -78,5 +80,13 @@ public class Protocol {
 		enteredLeft[0] = Integer.parseInt(args[1]);
 		enteredLeft[1] = Integer.parseInt(args[2]);
 		return enteredLeft;
+	}
+
+	public static void sendArrival(FullAddress address) throws Exception {
+		sendRequest(address, ARRIVAL, new String[] {});
+	}
+
+	public static void sendDeparture(FullAddress address) throws Exception {
+		sendRequest(address, DEPARTURE, new String[] {});
 	}
 }
