@@ -4,14 +4,14 @@ default: run_manager
 ARGS = $(wordlist 2,$(words $(MAKECMDGOALS)),$(MAKECMDGOALS))
 
 build:
-	javac -d bin -cp bin src/utils/*.java
-	javac -d bin -cp bin src/sim/protocol/*.java
-	javac -d bin -cp bin src/sim/*.java
-	javac -d bin -cp bin src/ui/*.java
-	javac -d bin -cp bin src/*.java
+	javac src/utils/*.java \
+		src/sim/protocol/*.java \
+		src/sim/*.java \
+		src/ui/*.java \
+		src/*.java
 
 clean:
-	rm -rf bin/*
+	find . -name "*.class" -type f -delete
 
 start_manager:
 	java -cp bin Manager $(ARGS)
