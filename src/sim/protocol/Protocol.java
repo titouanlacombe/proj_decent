@@ -2,23 +2,25 @@ package sim.protocol;
 
 import java.io.*;
 import java.net.*;
+import java.util.ArrayList;
 import java.util.Base64;
 import java.util.HashMap;
 
 import utils.FullAddress;
 
 public class Protocol {
-	private static final Class<? extends Request>[] requestClasses = new Class[] {
-			ArrivalRequest.class,
-			DepartureRequest.class,
-			ExitRequest.class,
-			SimulationUpdateRequest.class,
-			TokenRequest.class,
-	};
-
+	private static ArrayList<Class<? extends Request>> requestClasses = new ArrayList<Class<? extends Request>>();
 	private static HashMap<String, Class<? extends Request>> requestMap = null;
 
 	private static void cacheRequestClasses() throws Exception {
+		if (requestClasses.isEmpty()) {
+			requestClasses.add(ArrivalRequest.class);
+			requestClasses.add(DepartureRequest.class);
+			requestClasses.add(ExitRequest.class);
+			requestClasses.add(SimulationUpdateRequest.class);
+			requestClasses.add(TokenRequest.class);
+		}
+
 		if (requestMap == null) {
 			requestMap = new HashMap<>();
 			for (Class<? extends Request> requestClass : requestClasses) {
