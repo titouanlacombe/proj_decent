@@ -113,7 +113,7 @@ public class Simulator {
 
 	public boolean handleRequest(Socket clientSocket) throws Exception {
 		Request request = Protocol.recv(clientSocket);
-		System.out.println("[SIMULATOR] " + request);
+		System.out.println("\n[SIMULATOR] " + request);
 
 		switch (request.getCode()) {
 			case ExitRequest.CODE:

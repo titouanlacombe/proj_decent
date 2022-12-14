@@ -66,7 +66,7 @@ public class Node {
 
 	public boolean handleRequest(Socket clientSocket) throws Exception {
 		Request request = Protocol.recv(clientSocket);
-		System.out.println("[NODE " + uuid + "] " + request);
+		System.out.println("\n[NODE " + uuid + "] " + request);
 
 		switch (request.getCode()) {
 			case ExitRequest.CODE:
@@ -91,7 +91,7 @@ public class Node {
 	public void tokenRequest(TokenRequest request) throws Exception {
 		Token token = request.token;
 
-		System.out.println("[NODE] Got token: " + token);
+		System.out.println("Node got token: " + token);
 
 		// Run node controller
 		controller.run(token);
