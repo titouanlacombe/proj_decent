@@ -12,11 +12,13 @@ public class Controller implements Serializable {
 	}
 
 	private void make_enter(Token token, int n) {
+		System.out.println("Controller: " + n + " entering");
 		token.placesLeft -= n;
 		entering -= n;
 	}
 
 	private void make_leave(Token token, int n) {
+		System.out.println("Controller: " + n + " leaving");
 		token.placesLeft += n;
 		leaving -= n;
 	}
