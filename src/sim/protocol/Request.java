@@ -11,12 +11,7 @@ public abstract class Request {
 	abstract String serialize() throws Exception;
 
 	public String toString() {
-		try {
-			return "[" + getCode() + " request]: " + serialize();
-		} catch (Exception e) {
-			System.err.println("Error serializing request: " + e.getMessage());
-			return "";
-		}
+		return getCode() + " Request";
 	}
 
 	public static String serializeObj(Object o) throws Exception {

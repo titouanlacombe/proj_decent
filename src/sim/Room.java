@@ -58,7 +58,6 @@ public class Room {
 			count++;
 		}
 
-		System.out.println(count + " persons arriving");
 		for (int i = 0; i < count; i++) {
 			FullAddress controller = randomController();
 			System.out.println("Person arriving to " + controller);
@@ -67,7 +66,7 @@ public class Room {
 	}
 
 	public void update(String sender_uuid, Controller updated) throws Exception {
-		System.out.println("Updating controller " + sender_uuid);
+		System.out.println("Update from " + sender_uuid + ": " + updated);
 
 		// Update controller state
 		// Controller old = controllers.get(sender_uuid);
@@ -87,7 +86,6 @@ public class Room {
 		now = timer.now();
 		elapsed = now - lastUpdate;
 		lastUpdate = now;
-		System.out.println("Updating room, elapsed: " + elapsed + " ms");
 
 		arriving();
 		leaving();
