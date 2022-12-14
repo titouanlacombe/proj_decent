@@ -13,18 +13,16 @@ import java.awt.*;
 public class MainWindow {
 
     Window window;
-    int numNodes;
-    int numPersons;
+    Config config;
 
     // main simulator window
     public MainWindow() {
         this.window = new Window("Simulateur");
     }
 
-    public MainWindow(int numNodes, int numPersons) {
+    public MainWindow(Config config) {
         this.window = new Window("Simulateur");
-        this.numNodes = numNodes;
-        this.numPersons = numPersons;
+        this.config = config;
     }
 
     public void startWindow() {
@@ -52,7 +50,10 @@ public class MainWindow {
         timer.start();
     }
 
-    public void configWindow(Config config) {
+    public void configWindow() {
+
+        // Display config info
+        System.out.println("Config: " + config.toString());
 
         // Nodes field
         JTextField nodesTf = new JTextField();
@@ -65,11 +66,11 @@ public class MainWindow {
 
         nodesLabel.setBounds(50, 20, 200, 30);
         nodesTf.setBounds(220, 20, 100, 30);
-        nodesTf.setText(Integer.toString(numNodes));
+        nodesTf.setText(Integer.toString(config.numNodes));
 
         personsLabel.setBounds(50, 60, 200, 30);
         personsTf.setBounds(220, 60, 100, 30);
-        personsTf.setText(Integer.toString(numPersons));
+        personsTf.setText(Integer.toString(config.roomCapacity));
 
         this.window.add(nodesTf);
         this.window.add(nodesLabel);
@@ -86,8 +87,8 @@ public class MainWindow {
                         System.out.println("Starting simulation with " + nodesTf.getText() + " nodes and "
                                 + personsTf.getText() + " persons");
 
-                        numNodes = Integer.parseInt(nodesTf.getText());
-                        numPersons = Integer.parseInt(personsTf.getText());
+                        int numNodes = Integer.parseInt(nodesTf.getText());
+                        int numPersons = Integer.parseInt(personsTf.getText());
                         // Config config = new Config(nb_nodes, nb_persons);
                         clearWindow();
                         config.numNodes = numNodes;
@@ -200,7 +201,7 @@ public class MainWindow {
         Component[] components = this.window.getContentPane().getComponents();
 
         // total progress bar index
-        int totalBarIndex = 1 + numNodes;
+        int totalBarIndex = 1 + this.config.numNodes;
 
         // update total progress bar
         JProgressBar totalBar = (JProgressBar) components[totalBarIndex];
@@ -230,10 +231,8 @@ public class MainWindow {
     public static void main(String[] args) {
 
         // create a new window
-        MainWindow window = new MainWindow();
+        MainWindow window = new MainWindow(Config._default());
 
-        Config config = Config._default();
-
-        window.configWindow(config);
+        window.configWindow();
     }
 }
