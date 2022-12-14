@@ -1,5 +1,6 @@
 import java.io.*;
 import java.net.*;
+import java.util.HashMap;
 
 import sim.Room;
 import sim.protocol.*;
@@ -65,9 +66,9 @@ public class Simulator {
 		nodeBuilder.redirectOutput(ProcessBuilder.Redirect.INHERIT);
 		nodeBuilder.redirectError(ProcessBuilder.Redirect.INHERIT);
 
-		Process[] nodes = new Process[config.numNodes];
+		Process[] nodes_procs = new Process[config.numNodes];
 		for (int i = 0; i < config.numNodes; i++) {
-			nodes[i] = nodeBuilder.start();
+			nodes_procs[i] = nodeBuilder.start();
 		}
 
 		// Wait manager to finish
@@ -81,14 +82,16 @@ public class Simulator {
 		// Recover nodes addresses from nodes_addresses.txt
 		System.out.println("Recovering nodes addresses");
 		reader = new BufferedReader(new FileReader(nodesFile));
-		FullAddress[] nodesAddresses = new FullAddress[config.numNodes];
+		HashMap<String, FullAddress> nodes = new HashMap<String, FullAddress>();
 		for (int i = 0; i < config.numNodes; i++) {
-			nodesAddresses[i] = FullAddress.fromString(reader.readLine());
+			String line = reader.readLine();
+			String[] parts = line.split(" ");
+			nodes.put(parts[0], FullAddress.fromString(parts[1]));
 		}
 		reader.close();
 
 		// Set controllers in room
-		room.setControllers(nodesAddresses);
+		room.setNodes(nodes);
 
 		// Start simulation
 		System.out.println("Startup complete, starting simulation");
@@ -105,7 +108,7 @@ public class Simulator {
 		// Kill nodes
 		System.out.println("Killing nodes");
 		for (int i = 0; i < config.numNodes; i++) {
-			nodes[i].destroy();
+			nodes_procs[i].destroy();
 		}
 
 		System.out.println("Done");

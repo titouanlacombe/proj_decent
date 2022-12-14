@@ -9,7 +9,8 @@ import utils.Timer;
 
 public class Room {
 	private SortedSet<Double> leavingTimes;
-	private FullAddress[] controllers;
+	private HashMap<String, Controller> controllers;
+	private HashMap<String, FullAddress> nodes;
 	private double entryRate;
 	private NormalGenerator visitTimeGenerator;
 
@@ -19,8 +20,9 @@ public class Room {
 	private double now;
 
 	public Room(double timeScale, double entryRate, NormalGenerator visitTimeGenerator) {
-		this.leavingTimes = new TreeSet<Double>(); // TODO verify that this is the right type
-		this.controllers = null;
+		this.leavingTimes = new TreeSet<>(); // TODO verify that this is the right type
+		this.nodes = null;
+		this.controllers = new HashMap<>();
 		this.entryRate = entryRate;
 		this.visitTimeGenerator = visitTimeGenerator;
 
@@ -28,12 +30,13 @@ public class Room {
 		this.lastUpdate = timer.now();
 	}
 
-	public void setControllers(FullAddress[] controllers) {
-		this.controllers = controllers;
+	public void setNodes(HashMap<String, FullAddress> nodes) {
+		this.nodes = nodes;
 	}
 
-	private FullAddress randomController() {
-		return controllers[(int) (Math.random() * controllers.length)];
+	private String randomUuid() {
+		int index = (int) (Math.random() * nodes.size());
+		return new ArrayList<>(nodes.keySet()).get(index);
 	}
 
 	// Make persons leave the room if they have to
@@ -41,9 +44,9 @@ public class Room {
 		while (!leavingTimes.isEmpty() && leavingTimes.first() < now) {
 			leavingTimes.remove(leavingTimes.first());
 
-			FullAddress controller = randomController();
-			System.out.println("Person leaving to " + controller);
-			Protocol.send(controller, new DepartureRequest());
+			FullAddress node = nodes.get(randomUuid());
+			System.out.println("Person leaving to " + node);
+			Protocol.send(node, new DepartureRequest());
 		}
 	}
 
@@ -59,18 +62,17 @@ public class Room {
 		}
 
 		for (int i = 0; i < count; i++) {
-			FullAddress controller = randomController();
-			System.out.println("Person arriving to " + controller);
-			Protocol.send(controller, new ArrivalRequest());
+			FullAddress node = nodes.get(randomUuid());
+			System.out.println("Person arriving to " + node);
+			Protocol.send(node, new ArrivalRequest());
 		}
 	}
 
 	public void update(String sender_uuid, Controller updated) throws Exception {
 		System.out.println("Update from " + sender_uuid + ": " + updated);
 
-		// Update controller state
-		// Controller old = controllers.get(sender_uuid);
-		Controller old = null;
+		// Compute change in entering
+		Controller old = controllers.get(sender_uuid);
 		if (old == null) {
 			old = new Controller();
 		}
@@ -80,7 +82,8 @@ public class Room {
 			leavingTimes.add(visitTimeGenerator.get() + now);
 		}
 
-		// controllers.put(sender_uuid, updated);
+		// Update controller
+		controllers.put(sender_uuid, updated);
 
 		// Update arring/leaving
 		now = timer.now();

@@ -36,8 +36,9 @@ public class Node {
 		// Send manager my address
 		FullAddress managerAddress = FullAddress.fromString(args[0]);
 		Socket socket = new Socket(managerAddress.ip, managerAddress.port);
-		System.out.println("Sending my address to " + managerAddress);
-		socket.getOutputStream().write(myAddress.toString().getBytes());
+		System.out.println("Sending my uuid/address to " + managerAddress);
+		String message = uuid + " " + myAddress;
+		socket.getOutputStream().write(message.getBytes());
 		socket.close();
 
 		// Wait for manager to send next node
