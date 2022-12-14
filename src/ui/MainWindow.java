@@ -103,7 +103,7 @@ public class MainWindow {
                             clearWindow();
                             simulationWindow(config.numNodes);
                             simulator.startSim();
-                            simulator.killNodes();
+                            // simulator.killNodes();
                         } catch (Exception ex) {
                             ex.printStackTrace();
                         }

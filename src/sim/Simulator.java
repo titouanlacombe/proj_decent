@@ -9,7 +9,6 @@ import sim.protocol.ExitRequest;
 import sim.protocol.Protocol;
 import sim.protocol.Request;
 import sim.protocol.SimulationUpdateRequest;
-import ui.MainWindow;
 import config.Config;
 import utils.FullAddress;
 import utils.NormalGenerator;
@@ -110,19 +109,33 @@ public class Simulator {
     }
 
     public void startSim() throws Exception {
-        System.out.println("Startup complete, starting simulation");
-        while (true) {
-            Socket clientSocket = serverSocket.accept();
-            boolean exit = this.handleRequest(clientSocket);
-            clientSocket.close();
 
-            if (exit) {
-                break;
+        // Start simulation in new thread
+        Thread simulationThread = new Thread(new Runnable() {
+            public void run() {
+                try {
+                    System.out.println("Startup complete, starting simulation");
+                    while (true) {
+                        Socket clientSocket = serverSocket.accept();
+                        boolean exit = handleRequest(clientSocket);
+                        clientSocket.close();
+
+                        if (exit) {
+                            break;
+                        }
+                    }
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
             }
-        }
+        });
+
+        simulationThread.start();
+
     }
 
     public void killNodes() {
+        System.out.println("Killing nodes");
         for (int i = 0; i < config.numNodes; i++) {
             nodes_procs[i].destroy();
         }
