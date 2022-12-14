@@ -66,7 +66,7 @@ public class Node {
 
 	public boolean handleRequest(Socket clientSocket) throws Exception {
 		Request request = Protocol.recv(clientSocket);
-		System.out.println("[NODE] " + request);
+		System.out.println("[NODE " + uuid + "] " + request);
 
 		switch (request.getCode()) {
 			case ExitRequest.CODE:
