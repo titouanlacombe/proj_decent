@@ -20,6 +20,8 @@ public class Config {
         config.visitTimeStdDev = 0.5;
         config.timeScale = 1;
         config.randSeed = 0;
+        config.roomCapacity = 10;
+        config.numNodes = 3;
 
         return config;
     }
