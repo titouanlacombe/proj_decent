@@ -1,21 +1,31 @@
+package sim;
+
 import java.io.*;
 import java.net.ServerSocket;
 
 import ui.MainWindow;
+import utils.Config;
 import utils.FullAddress;
 
 public class Simulator {
+
+    private Config config;
+    private Process[] nodes;
+    private ServerSocket serverSocket;
+
+    public Simulator() {
+        this(Config._default());
+    }
+
+    public Simulator(Config config) {
+        this.config = config;
+    }
+
     // Args: num_nodes => write to stdout the ip:port of manager
-    public static void _main(String[] args) throws Exception {
-
-        Config config = Config._default();
-
-        // Create UI Window
-        MainWindow window = new MainWindow(config.numNodes, config.roomCapacity);
-        window.startWindow();
+    public void start() throws Exception {
 
         // Create server
-        ServerSocket serverSocket = new ServerSocket(0);
+        serverSocket = new ServerSocket(0);
         FullAddress simulatorAddress = FullAddress.fromSocket(serverSocket);
         System.out.println("Simulator started at " + simulatorAddress);
 
@@ -56,7 +66,7 @@ public class Simulator {
         nodeBuilder.redirectOutput(ProcessBuilder.Redirect.INHERIT);
         nodeBuilder.redirectError(ProcessBuilder.Redirect.INHERIT);
 
-        Process[] nodes = new Process[config.numNodes];
+        nodes = new Process[config.numNodes];
         for (int i = 0; i < config.numNodes; i++) {
             nodes[i] = nodeBuilder.start();
         }
@@ -68,36 +78,21 @@ public class Simulator {
             System.out.println("Manager exited with code " + code);
             System.exit(code);
         }
+    }
 
-        window.clearWindow();
-        window.simulationWindow(config.numNodes);
-        window.updateBar(0, 10);
-        window.updateBar(1, 20);
-        window.updateBar(2, 30);
-
+    public void startSim() throws Exception {
         // Start simulation
         System.out.println("Startup complete, starting simulation");
         Simulator.serve(serverSocket, config);
+    }
 
-        // Kill nodes
-        System.out.println("Killing nodes");
+    public void killNodes() {
         for (int i = 0; i < config.numNodes; i++) {
             nodes[i].destroy();
         }
-
-        System.out.println("Done");
     }
 
     public static void serve(ServerSocket serverSocket, Config config) throws Exception {
         // TODO
-    }
-
-    public static void main(String[] args) {
-        try {
-            _main(args);
-        } catch (Exception e) {
-            System.out.println("Error in main thread");
-            e.printStackTrace();
-        }
     }
 }

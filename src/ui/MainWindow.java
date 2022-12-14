@@ -5,6 +5,9 @@ import java.awt.event.ActionListener;
 
 import javax.swing.*;
 
+import sim.Simulator;
+import utils.Config;
+
 import java.awt.*;
 
 public class MainWindow {
@@ -49,7 +52,7 @@ public class MainWindow {
         timer.start();
     }
 
-    public void configWindow() {
+    public void configWindow(Config config) {
 
         // Nodes field
         JTextField nodesTf = new JTextField();
@@ -87,7 +90,24 @@ public class MainWindow {
                         numPersons = Integer.parseInt(personsTf.getText());
                         // Config config = new Config(nb_nodes, nb_persons);
                         clearWindow();
+                        config.numNodes = numNodes;
+                        config.roomCapacity = numPersons;
 
+                        System.out.println(config.toString());
+
+                        startWindow();
+                        Simulator simulator = new Simulator(config);
+                        try {
+                            simulator.start();
+                            clearWindow();
+                            simulationWindow(config.numNodes);
+                            simulator.startSim();
+                            simulator.killNodes();
+                        } catch (Exception ex) {
+                            ex.printStackTrace();
+                        }
+
+                        System.out.println("Done");
                     }
                 });
 
@@ -103,62 +123,70 @@ public class MainWindow {
         clearWindow();
 
         // simple GridBagLayout with 2 rows and nbNodes+1 columns
-        // 1st row: labels for total and each node (20% of height)
-        // 2nd row: vertical progress bars for total and each node (80% of height)
+        // 1st column: labels for total and each node (20% of height)
+        // 2nd column: progress bars for total and each node (80% of height)
         // margin of 5px on all sides
 
         GridBagLayout layout = new GridBagLayout();
         this.window.setLayout(layout);
 
         GridBagConstraints c = new GridBagConstraints();
-        c.fill = GridBagConstraints.BOTH;
-        c.weightx = 1;
-        c.weighty = 0.2;
+
+        // total label
+        JLabel totalLabel = new JLabel("Total");
         c.gridx = 0;
         c.gridy = 0;
+        c.gridwidth = 1;
+        c.gridheight = 1;
+        c.weightx = 0.2;
+        c.weighty = 0.2;
+        c.fill = GridBagConstraints.BOTH;
+        c.anchor = GridBagConstraints.CENTER;
         c.insets = new Insets(5, 5, 5, 5);
+        this.window.add(totalLabel, c);
 
-        // 1st row
-        // center label text
-        JLabel totalLabel = new JLabel("Total");
-        totalLabel.setHorizontalAlignment(SwingConstants.CENTER);
-        layout.setConstraints(totalLabel, c);
-        this.window.add(totalLabel);
-
-        c.gridx = 1;
-        for (int i = 0; i < nbNodes; i++) {
-            JLabel nodeLabel = new JLabel("Noeud " + i);
-            nodeLabel.setHorizontalAlignment(SwingConstants.CENTER);
-            layout.setConstraints(nodeLabel, c);
-            this.window.add(nodeLabel);
-            c.gridx++;
+        // node labels
+        for (int i = 1; i <= nbNodes; i++) {
+            JLabel nodeLabel = new JLabel("Node " + i);
+            c.gridx = 0;
+            c.gridy = i + 1;
+            c.gridwidth = 1;
+            c.gridheight = 1;
+            c.weightx = 0.2;
+            c.weighty = 0.2;
+            c.fill = GridBagConstraints.BOTH;
+            c.anchor = GridBagConstraints.CENTER;
+            c.insets = new Insets(5, 5, 5, 5);
+            this.window.add(nodeLabel, c);
         }
 
-        // 2nd row
-        c.weighty = 0.8;
-        c.gridx = 0;
-        c.gridy = 1;
-
-        JProgressBar totalBar = new JProgressBar(JProgressBar.VERTICAL);
-        layout.setConstraints(totalBar, c);
-        this.window.add(totalBar);
-
+        // total progress bar
+        JProgressBar totalBar = new JProgressBar();
         c.gridx = 1;
-        int total = 0;
-        for (int i = 0; i < nbNodes; i++) {
-            // Vertical progress bar
-            JProgressBar nodeBar = new JProgressBar(JProgressBar.VERTICAL);
-            nodeBar.setValue(0);
-            nodeBar.setStringPainted(true);
-            layout.setConstraints(nodeBar, c);
-            this.window.add(nodeBar);
-            c.gridx++;
+        c.gridy = 0;
+        c.gridwidth = 1;
+        c.gridheight = 1;
+        c.weightx = 0.8;
+        c.weighty = 0.2;
+        c.fill = GridBagConstraints.BOTH;
+        c.anchor = GridBagConstraints.CENTER;
+        c.insets = new Insets(5, 5, 5, 5);
+        this.window.add(totalBar, c);
 
-            // update total
-            total += nodeBar.getValue();
+        // node progress bars
+        for (int i = 1; i <= nbNodes; i++) {
+            JProgressBar nodeBar = new JProgressBar();
+            c.gridx = 1;
+            c.gridy = i + 1;
+            c.gridwidth = 1;
+            c.gridheight = 1;
+            c.weightx = 0.8;
+            c.weighty = 0.2;
+            c.fill = GridBagConstraints.BOTH;
+            c.anchor = GridBagConstraints.CENTER;
+            c.insets = new Insets(5, 5, 5, 5);
+            this.window.add(nodeBar, c);
         }
-        totalBar.setValue(total);
-        totalBar.setStringPainted(true);
 
         this.window.setVisible(true);
 
@@ -171,27 +199,16 @@ public class MainWindow {
         // get all components
         Component[] components = this.window.getContentPane().getComponents();
 
-        // index of the total progress bar
+        // total progress bar index
         int totalBarIndex = 1 + numNodes;
 
-        // get total progress bar
+        // update total progress bar
         JProgressBar totalBar = (JProgressBar) components[totalBarIndex];
-
-        // get node progress bar
-        JProgressBar nodeBar = (JProgressBar) components[totalBarIndex + node + 1];
+        totalBar.setValue(totalBar.getValue() + value);
 
         // update node progress bar
-        nodeBar.setValue(value);
-
-        // update total progress bar
-        int total = 0;
-        for (int i = totalBarIndex; i < components.length; i++) {
-            // if not total bar
-            if (i != totalBarIndex)
-                total += ((JProgressBar) components[i]).getValue();
-
-        }
-        totalBar.setValue(total);
+        JProgressBar nodeBar = (JProgressBar) components[totalBarIndex + node + 1];
+        nodeBar.setValue(nodeBar.getValue() + value);
 
         // update window
         this.window.validate();
@@ -210,4 +227,13 @@ public class MainWindow {
         this.window.repaint();
     }
 
+    public static void main(String[] args) {
+
+        // create a new window
+        MainWindow window = new MainWindow();
+
+        Config config = Config._default();
+
+        window.configWindow(config);
+    }
 }
