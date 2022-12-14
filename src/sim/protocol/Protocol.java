@@ -58,7 +58,9 @@ public class Protocol {
 		Request request = requestMap.get(code).getDeclaredConstructor().newInstance();
 
 		// Decode & deserialize message
-		request.deserialize(new String(Base64.getDecoder().decode(parts[1])));
+		if (parts.length > 1) {
+			request.deserialize(new String(Base64.getDecoder().decode(parts[1])));
+		}
 		return request;
 	}
 
