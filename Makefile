@@ -5,6 +5,7 @@ ARGS = $(wordlist 2,$(words $(MAKECMDGOALS)),$(MAKECMDGOALS))
 
 build:
 	javac src/utils/*.java \
+		src/config/*.java \
 		src/sim/protocol/*.java \
 		src/sim/*.java \
 		src/ui/*.java \
@@ -20,7 +21,7 @@ start_node:
 	java -cp src Node $(ARGS)
 
 start_simulator:
-	java -cp src Simulator $(ARGS)
+	java -cp src sim.Simulator $(ARGS)
 
 run_manager: build start_manager
 run_node: build start_node
