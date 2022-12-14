@@ -45,7 +45,6 @@ public class Room {
 			leavingTimes.remove(leavingTimes.first());
 
 			FullAddress node = nodes.get(randomUuid());
-			System.out.println("Person leaving to " + node);
 			Protocol.send(node, new DepartureRequest());
 		}
 	}
@@ -63,7 +62,6 @@ public class Room {
 
 		for (int i = 0; i < count; i++) {
 			FullAddress node = nodes.get(randomUuid());
-			System.out.println("Person arriving to " + node);
 			Protocol.send(node, new ArrivalRequest());
 		}
 	}
