@@ -1,0 +1,36 @@
+package config;
+
+public class Config {
+    // --- Simulation config ---
+    public double entryRate;
+    public double visitTimeMean;
+    public double visitTimeStdDev;
+    public int roomCapacity;
+    public int numNodes;
+    public double timeScale;
+    public long randSeed;
+
+    // --- UI config ---
+
+    static public Config _default() {
+        Config config = new Config();
+
+        config.entryRate = 1 / 2000.0;
+        config.visitTimeMean = 1;
+        config.visitTimeStdDev = 0.5;
+        config.timeScale = 1;
+        config.randSeed = 0;
+
+        return config;
+    }
+
+    public String toString() {
+        return "Config(" +
+                "entryRate=" + entryRate +
+                ", visitTimeMean=" + visitTimeMean +
+                ", visitTimeStdDev=" + visitTimeStdDev +
+                ", roomCapacity=" + roomCapacity +
+                ", numNodes=" + numNodes +
+                ')';
+    }
+}

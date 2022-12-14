@@ -1,3 +1,5 @@
+package sim;
+
 import java.time.LocalDate;
 
 public class Visitor {
