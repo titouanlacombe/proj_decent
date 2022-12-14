@@ -3,7 +3,7 @@ import java.util.UUID;
 
 import sim.Controller;
 import sim.Token;
-import sim.protocol.Protocol;
+import sim.protocol.*;
 import utils.*;
 
 public class Node {
@@ -36,8 +36,9 @@ public class Node {
 		// Send manager my address
 		FullAddress managerAddress = FullAddress.fromString(args[0]);
 		Socket socket = new Socket(managerAddress.ip, managerAddress.port);
-		System.out.println("Sending my address to " + managerAddress);
-		socket.getOutputStream().write(myAddress.toString().getBytes());
+		System.out.println("Sending my uuid/address to " + managerAddress);
+		String message = uuid + " " + myAddress;
+		socket.getOutputStream().write(message.getBytes());
 		socket.close();
 
 		// Wait for manager to send next node
@@ -65,50 +66,45 @@ public class Node {
 	}
 
 	public boolean handleRequest(Socket clientSocket) throws Exception {
-		String message = new String(clientSocket.getInputStream().readAllBytes());
-		String command = Protocol.getCommand(message);
-		System.out.println("Received command: '" + command + "'");
+		Request request = Protocol.recv(clientSocket);
+		System.out.println("\n[NODE " + uuid + "] " + request);
 
-		switch (command) {
-			case Protocol.EXIT:
+		switch (request.getCode()) {
+			case ExitRequest.CODE:
 				return true;
-			case Protocol.ARRIVAL:
+			case ArrivalRequest.CODE:
 				controller.arrival();
 				break;
-			case Protocol.DEPARTURE:
+			case DepartureRequest.CODE:
 				controller.departure();
 				break;
-			case Protocol.TOKEN:
-				Token token = Protocol.receiveToken(message);
-				this.tokenRequest(token);
+			case TokenRequest.CODE:
+				tokenRequest((TokenRequest) request);
 				break;
 			default:
-				System.out.println("Error: Invalid command");
+				System.out.println("Error: Invalid request code");
 				break;
 		}
 
 		return false;
 	}
 
-	public void tokenRequest(Token token) throws Exception {
-		System.out.println("Received token: " + token);
+	public void tokenRequest(TokenRequest request) throws Exception {
+		Token token = request.token;
 
-		int old_entering = controller.get_entering();
-		int old_leaving = controller.get_leaving();
+		System.out.println("Node got token: " + token);
 
 		// Run node controller
 		controller.run(token);
 
 		// Send new controller state to simulation server
-		if (this.simulatorAddress != null) {
-			int entered = old_entering - controller.get_entering();
-			int left = old_leaving - controller.get_leaving();
-			Protocol.sendNodeUpdate(this.simulatorAddress, this.uuid, entered, left);
+		if (simulatorAddress != null) {
+			Protocol.send(simulatorAddress, new SimulationUpdateRequest(uuid, controller));
 		}
 
 		// Call next node
 		Thread.sleep(1000);
-		Protocol.sendToken(this.nextNodeAddress, token);
+		Protocol.send(nextNodeAddress, new TokenRequest(token));
 	}
 
 	public static void main(String[] args) {

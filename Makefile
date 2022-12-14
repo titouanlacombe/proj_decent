@@ -4,19 +4,23 @@ default: run_manager
 ARGS = $(wordlist 2,$(words $(MAKECMDGOALS)),$(MAKECMDGOALS))
 
 build:
-	javac -d bin -cp bin src/**/*.java src/*.java
+	javac src/utils/*.java \
+		src/sim/protocol/*.java \
+		src/sim/*.java \
+		src/ui/*.java \
+		src/*.java
 
 clean:
-	rm -rf bin/*
+	find . -name "*.class" -type f -delete
 
 start_manager:
-	java -cp bin Manager $(ARGS)
+	java -cp src Manager $(ARGS)
 
 start_node:
-	java -cp bin Node $(ARGS)
+	java -cp src Node $(ARGS)
 
 start_simulator:
-	java -cp bin Simulator $(ARGS)
+	java -cp src Simulator $(ARGS)
 
 run_manager: build start_manager
 run_node: build start_node

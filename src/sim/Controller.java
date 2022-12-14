@@ -64,6 +64,6 @@ public class Controller implements Serializable {
 	}
 
 	public String toString() {
-		return "Controller (" + entering + ", " + leaving + ")";
+		return "Controller (entering: " + entering + ", leaving: " + leaving + ")";
 	}
 }

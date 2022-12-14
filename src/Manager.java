@@ -4,6 +4,7 @@ import java.net.*;
 
 import sim.Token;
 import sim.protocol.Protocol;
+import sim.protocol.TokenRequest;
 import utils.*;
 
 public class Manager {
@@ -31,7 +32,7 @@ public class Manager {
 		// Wait for nodes
 		int numNodes = Integer.parseInt(args[0]);
 		System.out.println("Waiting for " + numNodes + " nodes to connect");
-		ArrayList<FullAddress> nodes = new ArrayList<>();
+		HashMap<String, FullAddress> nodes = new HashMap<String, FullAddress>();
 		for (int i = 0; i < numNodes; i++) {
 			// Get message
 			Socket socket = serverSocket.accept();
@@ -39,10 +40,12 @@ public class Manager {
 			socket.close();
 
 			// Parse message
-			FullAddress node_address = FullAddress.fromString(node_message);
-			System.out.println("Node " + i + " registered with callback address: " + node_address);
+			String[] parts = node_message.split(" ");
+			String uuid = parts[0];
+			FullAddress node_address = FullAddress.fromString(parts[1]);
+			System.out.println("Node " + uuid + " registered with address: " + node_address);
 
-			nodes.add(node_address);
+			nodes.put(uuid, node_address);
 		}
 
 		// Write node addresses to file for automation
@@ -50,15 +53,16 @@ public class Manager {
 		nodes_file.getParentFile().mkdirs();
 		nodes_file.createNewFile();
 		writer = new FileWriter(nodes_file);
-		for (FullAddress node : nodes) {
-			writer.write(node + "\n");
+		for (String uuid : nodes.keySet()) {
+			writer.write(uuid + " " + nodes.get(uuid) + "\n");
 		}
 		writer.close();
 
 		// Callback nodes with their next node
+		ArrayList<String> uuids = new ArrayList<String>(nodes.keySet());
 		for (int i = 0; i < numNodes; i++) {
-			FullAddress current = nodes.get(i);
-			FullAddress next = nodes.get((i + 1) % numNodes);
+			FullAddress current = nodes.get(uuids.get(i));
+			FullAddress next = nodes.get(uuids.get((i + 1) % numNodes));
 
 			System.out.println("Calling back " + current + " with " + next);
 
@@ -73,8 +77,8 @@ public class Manager {
 
 		// Sending start message to node 0
 		System.out.println("Sending start message to node 0");
-		FullAddress node0 = nodes.get(0);
-		Protocol.sendToken(node0, initialToken);
+		FullAddress node0 = nodes.get(uuids.get(0));
+		Protocol.send(node0, new TokenRequest(initialToken));
 
 		System.out.println("Nodes setup complete, exiting");
 		serverSocket.close();

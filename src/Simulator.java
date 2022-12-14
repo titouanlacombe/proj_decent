@@ -1,8 +1,9 @@
 import java.io.*;
 import java.net.*;
+import java.util.HashMap;
 
 import sim.Room;
-import sim.protocol.Protocol;
+import sim.protocol.*;
 import utils.FullAddress;
 import utils.NormalGenerator;
 
@@ -35,7 +36,7 @@ public class Simulator {
 		// Start manager subprocess
 		System.out.println("Starting manager");
 		ProcessBuilder managerBuilder = new ProcessBuilder(
-				"java", "-cp", "bin", "Manager",
+				"java", "-cp", "src", "Manager",
 				String.valueOf(config.numNodes),
 				String.valueOf(config.roomCapacity));
 		managerBuilder.redirectOutput(ProcessBuilder.Redirect.INHERIT);
@@ -59,15 +60,15 @@ public class Simulator {
 		// Start nodes subprocesses
 		System.out.println("Starting " + config.numNodes + " nodes");
 		ProcessBuilder nodeBuilder = new ProcessBuilder(
-				"java", "-cp", "bin", "Node",
+				"java", "-cp", "src", "Node",
 				managerAddress.toString(),
 				simulatorAddress.toString());
 		nodeBuilder.redirectOutput(ProcessBuilder.Redirect.INHERIT);
 		nodeBuilder.redirectError(ProcessBuilder.Redirect.INHERIT);
 
-		Process[] nodes = new Process[config.numNodes];
+		Process[] nodes_procs = new Process[config.numNodes];
 		for (int i = 0; i < config.numNodes; i++) {
-			nodes[i] = nodeBuilder.start();
+			nodes_procs[i] = nodeBuilder.start();
 		}
 
 		// Wait manager to finish
@@ -81,14 +82,16 @@ public class Simulator {
 		// Recover nodes addresses from nodes_addresses.txt
 		System.out.println("Recovering nodes addresses");
 		reader = new BufferedReader(new FileReader(nodesFile));
-		FullAddress[] nodesAddresses = new FullAddress[config.numNodes];
+		HashMap<String, FullAddress> nodes = new HashMap<String, FullAddress>();
 		for (int i = 0; i < config.numNodes; i++) {
-			nodesAddresses[i] = FullAddress.fromString(reader.readLine());
+			String line = reader.readLine();
+			String[] parts = line.split(" ");
+			nodes.put(parts[0], FullAddress.fromString(parts[1]));
 		}
 		reader.close();
 
 		// Set controllers in room
-		room.setControllers(nodesAddresses);
+		room.setNodes(nodes);
 
 		// Start simulation
 		System.out.println("Startup complete, starting simulation");
@@ -105,31 +108,32 @@ public class Simulator {
 		// Kill nodes
 		System.out.println("Killing nodes");
 		for (int i = 0; i < config.numNodes; i++) {
-			nodes[i].destroy();
+			nodes_procs[i].destroy();
 		}
 
 		System.out.println("Done");
 	}
 
 	public boolean handleRequest(Socket clientSocket) throws Exception {
-		String message = new String(clientSocket.getInputStream().readAllBytes());
-		String command = Protocol.getCommand(message);
-		System.out.println("Received command: '" + command + "'");
+		Request request = Protocol.recv(clientSocket);
+		System.out.println("\n[SIMULATOR] " + request);
 
-		switch (command) {
-			case Protocol.NODE_UPDATE:
-				String uuid = Protocol.receiveUUID(message);
-				int[] enteredLeft = Protocol.receiveEnteredLeft(message);
-				this.room.update(enteredLeft[0], enteredLeft[1]);
-				break;
-			case Protocol.EXIT:
+		switch (request.getCode()) {
+			case ExitRequest.CODE:
 				return true;
+			case SimulationUpdateRequest.CODE:
+				simulationUpdate((SimulationUpdateRequest) request);
+				break;
 			default:
-				System.out.println("Error: Invalid command");
+				System.out.println("Error: Invalid request code");
 				break;
 		}
 
 		return false;
+	}
+
+	public void simulationUpdate(SimulationUpdateRequest request) throws Exception {
+		room.update(request.sender_uuid, request.controller);
 	}
 
 	public static void main(String[] args) {

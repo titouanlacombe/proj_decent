@@ -2,14 +2,15 @@ package sim;
 
 import java.util.*;
 
-import sim.protocol.Protocol;
+import sim.protocol.*;
 import utils.FullAddress;
 import utils.NormalGenerator;
 import utils.Timer;
 
 public class Room {
 	private SortedSet<Double> leavingTimes;
-	private FullAddress[] controllers;
+	private HashMap<String, Controller> controllers;
+	private HashMap<String, FullAddress> nodes;
 	private double entryRate;
 	private NormalGenerator visitTimeGenerator;
 
@@ -19,8 +20,9 @@ public class Room {
 	private double now;
 
 	public Room(double timeScale, double entryRate, NormalGenerator visitTimeGenerator) {
-		this.leavingTimes = new TreeSet<Double>(); // TODO verify that this is the right type
-		this.controllers = null;
+		this.leavingTimes = new TreeSet<>(); // TODO verify that this is the right type
+		this.nodes = null;
+		this.controllers = new HashMap<>();
 		this.entryRate = entryRate;
 		this.visitTimeGenerator = visitTimeGenerator;
 
@@ -28,12 +30,13 @@ public class Room {
 		this.lastUpdate = timer.now();
 	}
 
-	public void setControllers(FullAddress[] controllers) {
-		this.controllers = controllers;
+	public void setNodes(HashMap<String, FullAddress> nodes) {
+		this.nodes = nodes;
 	}
 
-	private FullAddress randomController() {
-		return controllers[(int) (Math.random() * controllers.length)];
+	private String randomUuid() {
+		int index = (int) (Math.random() * nodes.size());
+		return new ArrayList<>(nodes.keySet()).get(index);
 	}
 
 	// Make persons leave the room if they have to
@@ -41,9 +44,9 @@ public class Room {
 		while (!leavingTimes.isEmpty() && leavingTimes.first() < now) {
 			leavingTimes.remove(leavingTimes.first());
 
-			FullAddress controller = randomController();
-			System.out.println("Person leaving to " + controller);
-			Protocol.sendDeparture(controller);
+			FullAddress node = nodes.get(randomUuid());
+			System.out.println("Person leaving to " + node);
+			Protocol.send(node, new DepartureRequest());
 		}
 	}
 
@@ -58,26 +61,34 @@ public class Room {
 			count++;
 		}
 
-		System.out.println(count + " persons arriving");
 		for (int i = 0; i < count; i++) {
-			FullAddress controller = randomController();
-			System.out.println("Person arriving to " + controller);
-			Protocol.sendArrival(controller);
+			FullAddress node = nodes.get(randomUuid());
+			System.out.println("Person arriving to " + node);
+			Protocol.send(node, new ArrivalRequest());
 		}
 	}
 
-	public void update(int entered, int left) throws Exception {
-		System.out.println("Updating room, entered: " + entered + ", left: " + left);
+	public void update(String sender_uuid, Controller updated) throws Exception {
+		System.out.println("Update from " + sender_uuid + ": " + updated);
+
+		// Compute change in entering
+		Controller old = controllers.get(sender_uuid);
+		if (old == null) {
+			old = new Controller();
+		}
+
+		int entered = old.get_entering() - updated.get_entering();
 		for (int i = 0; i < entered; i++) {
 			leavingTimes.add(visitTimeGenerator.get() + now);
 		}
 
-		// Do nothing with left as they are already deleted from leavingTimes
+		// Update controller
+		controllers.put(sender_uuid, updated);
 
+		// Update arring/leaving
 		now = timer.now();
 		elapsed = now - lastUpdate;
 		lastUpdate = now;
-		System.out.println("Updating room, elapsed: " + elapsed + " ms");
 
 		arriving();
 		leaving();
