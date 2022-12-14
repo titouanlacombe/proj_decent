@@ -44,8 +44,10 @@ public class Room {
 		while (!leavingTimes.isEmpty() && leavingTimes.first() < now) {
 			leavingTimes.remove(leavingTimes.first());
 
-			FullAddress node = nodes.get(randomUuid());
-			Protocol.send(node, new DepartureRequest());
+			String uuid = randomUuid();
+			// Update local controller
+			controllers.get(uuid).departure();
+			Protocol.send(nodes.get(uuid), new DepartureRequest());
 		}
 	}
 
@@ -61,8 +63,10 @@ public class Room {
 		}
 
 		for (int i = 0; i < count; i++) {
-			FullAddress node = nodes.get(randomUuid());
-			Protocol.send(node, new ArrivalRequest());
+			String uuid = randomUuid();
+			// Update local controller
+			controllers.get(uuid).arrival();
+			Protocol.send(nodes.get(uuid), new ArrivalRequest());
 		}
 	}
 
@@ -90,5 +94,7 @@ public class Room {
 
 		arriving();
 		leaving();
+
+		System.out.println("Leaving times: " + leavingTimes);
 	}
 }

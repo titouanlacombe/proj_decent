@@ -53,7 +53,7 @@ public class MainWindow {
     public void configWindow() {
 
         // Display config info
-        System.out.println("Config: " + config.toString());
+        System.out.println(config);
 
         // Nodes field
         JTextField nodesTf = new JTextField();
