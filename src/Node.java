@@ -90,7 +90,6 @@ public class Node {
 
 	public void tokenRequest(TokenRequest request) throws Exception {
 		Token token = request.token;
-		System.out.println("Received token: " + token);
 
 		// Run node controller
 		controller.run(token);

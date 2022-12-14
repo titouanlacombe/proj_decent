@@ -24,8 +24,4 @@ public class TokenRequest extends Request {
 	public String serialize() throws Exception {
 		return serializeObj(token);
 	}
-
-	public String toString() {
-		return "Token request: " + token;
-	}
 }

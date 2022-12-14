@@ -28,8 +28,4 @@ public class SimulationUpdateRequest extends Request {
 	public String serialize() throws Exception {
 		return sender_uuid + " " + serializeObj(controller);
 	}
-
-	public String toString() {
-		return "SimulationUpdate request from " + sender_uuid + ": " + controller;
-	}
 }
