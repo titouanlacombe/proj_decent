@@ -17,10 +17,11 @@ public class Config {
 	static public Config _default() {
 		Config config = new Config();
 
-		config.entryRate = 1 / 2000.0;
-		config.visitTimeMean = 1;
-		config.visitTimeStdDev = 0.5;
-		config.timeScale = 1;
+		// In milliseconds
+		config.entryRate = 1 / 2000.0; // 1 entry every 2 seconds
+		config.visitTimeMean = 2000; // 1 second
+		config.visitTimeStdDev = 1000; // 1 second
+
 		config.randSeed = 0;
 		config.roomCapacity = 10;
 		config.numNodes = 3;

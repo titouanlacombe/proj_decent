@@ -5,7 +5,6 @@ import java.util.*;
 import sim.protocol.*;
 import utils.FullAddress;
 import utils.NormalGenerator;
-import utils.Timer;
 
 public class Room {
 	private SortedSet<Double> leavingTimes;
@@ -14,24 +13,26 @@ public class Room {
 	private double entryRate;
 	private NormalGenerator visitTimeGenerator;
 
-	private Timer timer;
 	private double lastUpdate;
 	private double elapsed;
 	private double now;
 
-	public Room(double timeScale, double entryRate, NormalGenerator visitTimeGenerator) {
+	public Room(double entryRate, NormalGenerator visitTimeGenerator) {
 		this.leavingTimes = new TreeSet<>(); // TODO verify that this is the right type
 		this.nodes = null;
 		this.controllers = new HashMap<>();
 		this.entryRate = entryRate;
 		this.visitTimeGenerator = visitTimeGenerator;
 
-		this.timer = new Timer(timeScale);
-		this.lastUpdate = timer.now();
+		this.lastUpdate = System.currentTimeMillis();
 	}
 
 	public void setNodes(HashMap<String, FullAddress> nodes) {
 		this.nodes = nodes;
+
+		for (String uuid : nodes.keySet()) {
+			controllers.put(uuid, new Controller());
+		}
 	}
 
 	private String randomUuid() {
@@ -75,10 +76,6 @@ public class Room {
 
 		// Compute change in entering
 		Controller old = controllers.get(sender_uuid);
-		if (old == null) {
-			old = new Controller();
-		}
-
 		int entered = old.get_entering() - updated.get_entering();
 		for (int i = 0; i < entered; i++) {
 			leavingTimes.add(visitTimeGenerator.get() + now);
@@ -88,7 +85,7 @@ public class Room {
 		controllers.put(sender_uuid, updated);
 
 		// Update arring/leaving
-		now = timer.now();
+		now = System.currentTimeMillis();
 		elapsed = now - lastUpdate;
 		lastUpdate = now;
 

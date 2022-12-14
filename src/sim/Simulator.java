@@ -18,14 +18,11 @@ public class Simulator {
     private Config config;
     private Process[] nodes_procs;
     private ServerSocket serverSocket;
-    private long lastUpdate;
     private Room room;
 
     public Simulator(Config config) {
         this.config = config;
-        this.lastUpdate = System.currentTimeMillis();
-        this.room = new Room(
-                config.timeScale, config.entryRate,
+        this.room = new Room(config.entryRate,
                 new NormalGenerator(config.visitTimeMean, config.visitTimeStdDev, config.randSeed));
     }
 
