@@ -1,4 +1,4 @@
-default: run_manager
+default: run_app
 
 # Parse the command line arguments by ignoring the first one
 ARGS = $(wordlist 2,$(words $(MAKECMDGOALS)),$(MAKECMDGOALS))
@@ -20,9 +20,9 @@ start_manager:
 start_node:
 	java -cp src Node $(ARGS)
 
-start_simulator:
-	java -cp src sim.Simulator $(ARGS)
+start_app:
+	java -cp src App $(ARGS)
 
 run_manager: build start_manager
 run_node: build start_node
-run_simulator: build start_simulator
+run_app: build start_app
