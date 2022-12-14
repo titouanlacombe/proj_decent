@@ -13,6 +13,6 @@ public class Token implements Serializable {
 	}
 
 	public String toString() {
-		return "Token (" + placesLeft + ")";
+		return "Token (placesLeft: " + placesLeft + ")";
 	}
 }
