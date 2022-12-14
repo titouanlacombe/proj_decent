@@ -1,38 +1,44 @@
 package config;
 
+import java.lang.reflect.Field;
+
 public class Config {
-    // --- Simulation config ---
-    public double entryRate;
-    public double visitTimeMean;
-    public double visitTimeStdDev;
-    public int roomCapacity;
-    public int numNodes;
-    public double timeScale;
-    public long randSeed;
+	// --- Simulation config ---
+	public double entryRate;
+	public double visitTimeMean;
+	public double visitTimeStdDev;
+	public int roomCapacity;
+	public int numNodes;
+	public double timeScale;
+	public long randSeed;
 
-    // --- UI config ---
+	// --- UI config ---
 
-    static public Config _default() {
-        Config config = new Config();
+	static public Config _default() {
+		Config config = new Config();
 
-        config.entryRate = 1 / 2000.0;
-        config.visitTimeMean = 1;
-        config.visitTimeStdDev = 0.5;
-        config.timeScale = 1;
-        config.randSeed = 0;
-        config.roomCapacity = 10;
-        config.numNodes = 3;
+		config.entryRate = 1 / 2000.0;
+		config.visitTimeMean = 1;
+		config.visitTimeStdDev = 0.5;
+		config.timeScale = 1;
+		config.randSeed = 0;
+		config.roomCapacity = 10;
+		config.numNodes = 3;
 
-        return config;
-    }
+		return config;
+	}
 
-    public String toString() {
-        return "Config(" +
-                "entryRate=" + entryRate +
-                ", visitTimeMean=" + visitTimeMean +
-                ", visitTimeStdDev=" + visitTimeStdDev +
-                ", roomCapacity=" + roomCapacity +
-                ", numNodes=" + numNodes +
-                ')';
-    }
+	public String toString() {
+		// Using reflexion
+		Field[] fields = this.getClass().getDeclaredFields();
+		String str = "Config:\n";
+		for (Field field : fields) {
+			try {
+				str += "\t" + field.getName() + ": " + field.get(this) + "\n";
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		}
+		return str;
+	}
 }
