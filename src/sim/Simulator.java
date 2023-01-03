@@ -135,7 +135,6 @@ public class Simulator {
         if (nodes_procs != null) {
             System.out.println("Killing nodes");
             for (int i = 0; i < config.numNodes; i++) {
-                System.out.println(i + " : " + nodes_procs[i]);
                 nodes_procs[i].destroy();
             }
         }
