@@ -2,6 +2,8 @@ package ui;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.WindowEvent;
+import java.awt.event.WindowListener;
 
 import javax.swing.*;
 
@@ -10,19 +12,72 @@ import config.Config;
 
 import java.awt.*;
 
-public class MainWindow {
+public class MainWindow extends JFrame {
 
-    Window window;
+    JFrame window;
     Config config;
+    Simulator sim;
 
     // main simulator window
     public MainWindow() {
-        this.window = new Window("Simulateur");
+        this(Config._default());
     }
 
     public MainWindow(Config config) {
-        this.window = new Window("Simulateur");
+        this.window = new JFrame("Simulateur");
+        this.window.setSize(800, 600);
         this.config = config;
+
+        // add window listener to handle window closing without exiting the program
+        this.window.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
+
+        this.window.addWindowListener(new WindowListener() {
+            @Override
+            public void windowOpened(WindowEvent e) {
+            }
+
+            @Override
+            public void windowClosing(WindowEvent e) {
+
+                // ask for confirmation
+                int confirmed = JOptionPane.showConfirmDialog(null, "Are you sure you want to exit the program?",
+                        "Exit Program Message Box", JOptionPane.YES_NO_OPTION);
+
+                if (confirmed == JOptionPane.YES_OPTION) {
+
+                    // kill the nodes
+                    if (sim != null) {
+                        sim.killNodes();
+                    }
+
+                    // destroy the window
+                    window.dispose();
+
+                    System.exit(0);
+                }
+            }
+
+            @Override
+            public void windowClosed(WindowEvent e) {
+            }
+
+            @Override
+            public void windowIconified(WindowEvent e) {
+            }
+
+            @Override
+            public void windowDeiconified(WindowEvent e) {
+            }
+
+            @Override
+            public void windowActivated(WindowEvent e) {
+            }
+
+            @Override
+            public void windowDeactivated(WindowEvent e) {
+            }
+
+        });
     }
 
     public void startWindow() {
@@ -97,13 +152,12 @@ public class MainWindow {
                         System.out.println(config.toString());
 
                         startWindow();
-                        Simulator simulator = new Simulator(config);
+                        sim = new Simulator(config);
                         try {
-                            simulator.start();
+                            sim.start();
                             clearWindow();
                             simulationWindow(config.numNodes);
-                            simulator.startSim();
-                            // simulator.killNodes();
+                            sim.startSim();
                         } catch (Exception ex) {
                             ex.printStackTrace();
                         }
@@ -193,6 +247,14 @@ public class MainWindow {
 
     }
 
+    // public void updateSimulation() {
+
+    // // get leaving and entering from Controllers inside sim's Room
+    // int leaving = sim.getRoom().getLeaving();
+    // int entering = sim.getRoom().getEntering();
+
+    // }
+
     public void updateBar(int node, int value) {
         // update progress bar for node
         // update total progress bar
@@ -234,5 +296,6 @@ public class MainWindow {
         MainWindow window = new MainWindow(Config._default());
 
         window.configWindow();
+
     }
 }
