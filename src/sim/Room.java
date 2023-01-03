@@ -18,7 +18,7 @@ public class Room {
 	private double now;
 
 	public Room(double entryRate, NormalGenerator visitTimeGenerator) {
-		this.leavingTimes = new TreeSet<>(); // TODO verify that this is the right type
+		this.leavingTimes = new TreeSet<>();
 		this.nodes = null;
 		this.controllers = new HashMap<>();
 		this.entryRate = entryRate;
