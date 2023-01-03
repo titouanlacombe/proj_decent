@@ -132,10 +132,15 @@ public class Simulator {
     }
 
     public void killNodes() {
-        System.out.println("Killing nodes");
-        for (int i = 0; i < config.numNodes; i++) {
-            nodes_procs[i].destroy();
+        if (nodes_procs != null) {
+            System.out.println("Killing nodes");
+            for (int i = 0; i < config.numNodes; i++) {
+                System.out.println(i + " : " + nodes_procs[i]);
+                nodes_procs[i].destroy();
+            }
         }
+        System.out.println("Done");
+
     }
 
     public void simulationUpdate(SimulationUpdateRequest request) throws Exception {
