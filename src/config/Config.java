@@ -13,6 +13,9 @@ public class Config {
 	public long randSeed;
 
 	// --- UI config ---
+	public String windowTitle;
+	public int windowWidth;
+	public int windowHeight;
 
 	static public Config _default() {
 		Config config = new Config();
@@ -22,9 +25,14 @@ public class Config {
 		config.visitTimeMean = 2000; // 1 second
 		config.visitTimeStdDev = 1000; // 1 second
 
-		config.randSeed = 0;
 		config.roomCapacity = 10;
 		config.numNodes = 3;
+		config.timeScale = 1;
+		config.randSeed = 0;
+
+		config.windowTitle = "Simulation";
+		config.windowWidth = 800;
+		config.windowHeight = 600;
 
 		return config;
 	}
