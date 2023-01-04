@@ -4,284 +4,400 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowListener;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Set;
 
 import javax.swing.*;
 
+import sim.Controller;
 import sim.Simulator;
 import config.Config;
 
 import java.awt.*;
 
 public class MainWindow extends JFrame {
-	JFrame window;
-	Config config;
-	Simulator sim;
+    JFrame window;
+    Config config;
+    Simulator sim;
 
-	public MainWindow(JFrame window, Config config, Simulator sim) {
-		this.window = window;
-		this.config = config;
-		this.sim = sim;
-	}
+    public MainWindow(JFrame window, Config config, Simulator sim) {
+        this.window = window;
+        this.config = config;
+        this.sim = sim;
+    }
 
-	public void initWindow() {
-		// add window listener to handle window closing without exiting the program
-		this.window.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
+    public void initWindow() {
+        // add window listener to handle window closing without exiting the program
+        this.window.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
 
-		this.window.addWindowListener(new WindowListener() {
-			@Override
-			public void windowOpened(WindowEvent e) {
-			}
+        this.window.addWindowListener(new WindowListener() {
+            @Override
+            public void windowOpened(WindowEvent e) {
+            }
 
-			@Override
-			public void windowClosing(WindowEvent e) {
+            @Override
+            public void windowClosing(WindowEvent e) {
 
-				// ask for confirmation
-				int confirmed = JOptionPane.showConfirmDialog(null, "Are you sure you want to exit the program?",
-						"Exit Program Message Box", JOptionPane.YES_NO_OPTION);
+                // ask for confirmation
+                int confirmed = JOptionPane.showConfirmDialog(null, "Are you sure you want to exit the program?",
+                        "Exit Program Message Box", JOptionPane.YES_NO_OPTION);
 
-				if (confirmed == JOptionPane.YES_OPTION) {
+                if (confirmed == JOptionPane.YES_OPTION) {
 
-					// kill the nodes
-					if (sim != null) {
-						sim.killNodes();
-					}
+                    // kill the nodes
+                    if (sim != null) {
+                        sim.killNodes();
+                    }
 
-					// destroy the window
-					window.dispose();
+                    // destroy the window
+                    window.dispose();
 
-					System.exit(0);
-				}
-			}
+                    System.exit(0);
+                }
+            }
 
-			@Override
-			public void windowClosed(WindowEvent e) {
-			}
+            @Override
+            public void windowClosed(WindowEvent e) {
+            }
 
-			@Override
-			public void windowIconified(WindowEvent e) {
-			}
+            @Override
+            public void windowIconified(WindowEvent e) {
+            }
 
-			@Override
-			public void windowDeiconified(WindowEvent e) {
-			}
+            @Override
+            public void windowDeiconified(WindowEvent e) {
+            }
 
-			@Override
-			public void windowActivated(WindowEvent e) {
-			}
+            @Override
+            public void windowActivated(WindowEvent e) {
+            }
 
-			@Override
-			public void windowDeactivated(WindowEvent e) {
-			}
+            @Override
+            public void windowDeactivated(WindowEvent e) {
+            }
 
-		});
-	}
+        });
+    }
 
-	public void startWindow() {
-		JLabel startingLabel = new JLabel("Starting");
-		startingLabel.setBounds(50, 20, 200, 30);
-		this.window.add(startingLabel);
+    public void startWindow() {
+        JLabel startingLabel = new JLabel("Starting");
+        startingLabel.setBounds(50, 20, 200, 30);
+        this.window.add(startingLabel);
 
-		this.window.setLayout(null);
-		this.window.setVisible(true);
+        this.window.setLayout(null);
+        this.window.setVisible(true);
 
-		// Update text after 2 seconds
-		Timer timer = new Timer(500, new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				int nbDots = (startingLabel.getText().length() - 8 + 1) % 4;
-				String dots = "";
-				for (int i = 0; i < nbDots; i++) {
-					dots += ".";
-				}
-				startingLabel.setText("Starting" + dots);
-			}
-		});
+        // Update text after 2 seconds
+        Timer timer = new Timer(500, new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                int nbDots = (startingLabel.getText().length() - 8 + 1) % 4;
+                String dots = "";
+                for (int i = 0; i < nbDots; i++) {
+                    dots += ".";
+                }
+                startingLabel.setText("Starting" + dots);
+            }
+        });
 
-		timer.setRepeats(true);
-		timer.start();
-	}
+        timer.setRepeats(true);
+        timer.start();
+    }
 
-	public void configWindow() {
+    public void configWindow() {
 
-		// Display config info
-		System.out.println(config);
+        // Display config info
+        System.out.println(config);
 
-		// Nodes field
-		JTextField nodesTf = new JTextField();
-		// label for nodesTf
-		JLabel nodesLabel = new JLabel("Nombre de noeuds");
-		// persons field
-		JTextField personsTf = new JTextField();
-		// label for personsTf
-		JLabel personsLabel = new JLabel("Nombre de personnes");
+        // Nodes field
+        JTextField nodesTf = new JTextField();
+        // label for nodesTf
+        JLabel nodesLabel = new JLabel("Nombre de noeuds");
+        nodesLabel.setForeground(Color.WHITE);
+        // persons field
+        JTextField personsTf = new JTextField();
+        // label for personsTf
+        JLabel personsLabel = new JLabel("Nombre de personnes");
+        personsLabel.setForeground(Color.WHITE);
 
-		nodesLabel.setBounds(50, 20, 200, 30);
-		nodesTf.setBounds(220, 20, 100, 30);
-		nodesTf.setText(Integer.toString(config.numNodes));
+        nodesLabel.setBounds(50, 20, 200, 30);
+        nodesTf.setBounds(220, 20, 100, 30);
+        nodesTf.setText(Integer.toString(config.numNodes));
 
-		personsLabel.setBounds(50, 60, 200, 30);
-		personsTf.setBounds(220, 60, 100, 30);
-		personsTf.setText(Integer.toString(config.roomCapacity));
+        personsLabel.setBounds(50, 60, 200, 30);
+        personsTf.setBounds(220, 60, 100, 30);
+        personsTf.setText(Integer.toString(config.roomCapacity));
 
-		this.window.add(nodesTf);
-		this.window.add(nodesLabel);
-		this.window.add(personsTf);
-		this.window.add(personsLabel);
+        this.window.add(nodesTf);
+        this.window.add(nodesLabel);
+        this.window.add(personsTf);
+        this.window.add(personsLabel);
 
-		// "OK" button
-		JButton okButton = new JButton("OK");
-		okButton.setBounds(50, 100, 100, 30);
-		okButton.addActionListener(
-				new ActionListener() {
-					public void actionPerformed(ActionEvent e) {
-						// print content of nodesTf and personsTf
-						System.out.println("Starting simulation with " + nodesTf.getText() + " nodes and "
-								+ personsTf.getText() + " persons");
+        // "OK" button
+        JButton okButton = new JButton("OK");
+        okButton.setBounds(50, 100, 100, 30);
+        okButton.addActionListener(
+                new ActionListener() {
+                    public void actionPerformed(ActionEvent e) {
+                        // print content of nodesTf and personsTf
+                        System.out.println("Starting simulation with " + nodesTf.getText() + " nodes and "
+                                + personsTf.getText() + " persons");
 
-						int numNodes = Integer.parseInt(nodesTf.getText());
-						int numPersons = Integer.parseInt(personsTf.getText());
-						// Config config = new Config(nb_nodes, nb_persons);
-						clearWindow();
-						config.numNodes = numNodes;
-						config.roomCapacity = numPersons;
+                        int numNodes = Integer.parseInt(nodesTf.getText());
+                        int numPersons = Integer.parseInt(personsTf.getText());
+                        // Config config = new Config(nb_nodes, nb_persons);
+                        clearWindow();
+                        config.numNodes = numNodes;
+                        config.roomCapacity = numPersons;
 
-						System.out.println(config.toString());
+                        System.out.println(config.toString());
 
-						startWindow();
-						sim = new Simulator(config);
-						try {
-							sim.start();
-							clearWindow();
-							simulationWindow(config.numNodes);
-							sim.startSim();
-						} catch (Exception ex) {
-							ex.printStackTrace();
-						}
+                        startWindow();
+                        sim = new Simulator(config);
+                        try {
+                            sim.start();
+                            clearWindow();
+                            simulationWindow(config.numNodes);
+                            sim.startSim();
+                            // start updateSimulation() in a new thread
 
-						System.out.println("Done");
-					}
-				});
+                            updateSimulation();
 
-		this.window.add(okButton);
+                        } catch (Exception ex) {
+                            ex.printStackTrace();
+                        }
 
-		this.window.setLayout(null);
-		this.window.setVisible(true);
-	}
+                        System.out.println("Done");
+                    }
+                });
 
-	public void simulationWindow(int nbNodes) {
-		// "Simulation..."
+        this.window.add(okButton);
 
-		clearWindow();
+        this.window.setLayout(null);
+        this.window.setVisible(true);
+    }
 
-		// simple GridBagLayout with 2 rows and nbNodes+1 columns
-		// 1st column: labels for total and each node (20% of height)
-		// 2nd column: progress bars for total and each node (80% of height)
-		// margin of 5px on all sides
+    public void simulationWindow(int nbNodes) {
+        // "Simulation..."
 
-		GridBagLayout layout = new GridBagLayout();
-		this.window.setLayout(layout);
+        clearWindow();
 
-		GridBagConstraints c = new GridBagConstraints();
+        // simple GridBagLayout with 2 rows and nbNodes+1 columns
+        // 1st column: labels for total and each node (20% of height)
+        // 2nd column: progress bars for total or info about entering and leaving (80%
+        // of height)
+        // margin of 5px on all sides
 
-		// total label
-		JLabel totalLabel = new JLabel("Total");
-		c.gridx = 0;
-		c.gridy = 0;
-		c.gridwidth = 1;
-		c.gridheight = 1;
-		c.weightx = 0.2;
-		c.weighty = 0.2;
-		c.fill = GridBagConstraints.BOTH;
-		c.anchor = GridBagConstraints.CENTER;
-		c.insets = new Insets(5, 5, 5, 5);
-		this.window.add(totalLabel, c);
+        GridBagLayout layout = new GridBagLayout();
 
-		// node labels
-		for (int i = 1; i <= nbNodes; i++) {
-			JLabel nodeLabel = new JLabel("Node " + i);
-			c.gridx = 0;
-			c.gridy = i + 1;
-			c.gridwidth = 1;
-			c.gridheight = 1;
-			c.weightx = 0.2;
-			c.weighty = 0.2;
-			c.fill = GridBagConstraints.BOTH;
-			c.anchor = GridBagConstraints.CENTER;
-			c.insets = new Insets(5, 5, 5, 5);
-			this.window.add(nodeLabel, c);
-		}
+        this.window.setLayout(layout);
 
-		// total progress bar
-		JProgressBar totalBar = new JProgressBar();
-		c.gridx = 1;
-		c.gridy = 0;
-		c.gridwidth = 1;
-		c.gridheight = 1;
-		c.weightx = 0.8;
-		c.weighty = 0.2;
-		c.fill = GridBagConstraints.BOTH;
-		c.anchor = GridBagConstraints.CENTER;
-		c.insets = new Insets(5, 5, 5, 5);
-		this.window.add(totalBar, c);
+        GridBagConstraints c = new GridBagConstraints();
+        c.fill = GridBagConstraints.BOTH;
+        c.anchor = GridBagConstraints.CENTER;
 
-		// node progress bars
-		for (int i = 1; i <= nbNodes; i++) {
-			JProgressBar nodeBar = new JProgressBar();
-			c.gridx = 1;
-			c.gridy = i + 1;
-			c.gridwidth = 1;
-			c.gridheight = 1;
-			c.weightx = 0.8;
-			c.weighty = 0.2;
-			c.fill = GridBagConstraints.BOTH;
-			c.anchor = GridBagConstraints.CENTER;
-			c.insets = new Insets(5, 5, 5, 5);
-			this.window.add(nodeBar, c);
-		}
+        // total label
+        JLabel totalLabel = new JLabel("Total");
+        c.gridx = 0;
+        c.gridy = 0;
+        // c.fill = GridBagConstraints.BOTH;
+        // c.anchor = GridBagConstraints.CENTER;
+        c.insets = new Insets(5, 5, 5, 5);
+        totalLabel.setHorizontalAlignment(SwingConstants.CENTER);
+        totalLabel.setVerticalAlignment(SwingConstants.CENTER);
+        totalLabel.setForeground(Color.WHITE);
+        this.window.add(totalLabel, c);
 
-		this.window.setVisible(true);
+        // node labels
+        for (int i = 1; i <= nbNodes; i++) {
+            JLabel nodeLabel = new JLabel("Node " + i);
+            c.gridx = 0;
+            c.gridy = i + 1;
+            c.weightx = 0.5;
+            c.weighty = 0.5;
+            // c.fill = GridBagConstraints.BOTH;
+            // c.anchor = GridBagConstraints.CENTER;
+            c.insets = new Insets(5, 5, 5, 5);
+            nodeLabel.setHorizontalAlignment(SwingConstants.CENTER);
+            nodeLabel.setVerticalAlignment(SwingConstants.CENTER);
+            nodeLabel.setForeground(Color.WHITE);
+            this.window.add(nodeLabel, c);
 
-	}
+            // node infos
+            // label "E :" + entering
+            JLabel enteringLabel = new JLabel("E : ");
+            c.gridx = 1;
+            c.gridy = i + 1;
+            // c.fill = GridBagConstraints.BOTH;
+            // c.anchor = GridBagConstraints.CENTER;
+            c.insets = new Insets(5, 5, 5, 5);
+            enteringLabel.setHorizontalAlignment(SwingConstants.CENTER);
+            enteringLabel.setVerticalAlignment(SwingConstants.CENTER);
+            enteringLabel.setForeground(Color.WHITE);
 
-	// public void updateSimulation() {
+            this.window.add(enteringLabel, c);
+            JLabel enteringValue = new JLabel("0");
+            c.gridx = 2;
+            c.gridy = i + 1;
+            // c.fill = GridBagConstraints.BOTH;
+            // c.anchor = GridBagConstraints.CENTER;
+            c.insets = new Insets(5, 5, 5, 5);
+            enteringValue.setHorizontalAlignment(SwingConstants.CENTER);
+            enteringValue.setVerticalAlignment(SwingConstants.CENTER);
+            enteringValue.setForeground(Color.WHITE);
+            this.window.add(enteringValue, c);
+            // label "S :" + leaving
+            JLabel leavingLabel = new JLabel("S : ");
+            c.gridx = 3;
+            c.gridy = i + 1;
+            // c.fill = GridBagConstraints.BOTH;
+            // c.anchor = GridBagConstraints.CENTER;
+            c.insets = new Insets(5, 5, 5, 5);
+            leavingLabel.setHorizontalAlignment(SwingConstants.CENTER);
+            leavingLabel.setVerticalAlignment(SwingConstants.CENTER);
+            leavingLabel.setForeground(Color.WHITE);
+            this.window.add(leavingLabel, c);
+            JLabel leavingValue = new JLabel("0");
+            c.gridx = 4;
+            c.gridy = i + 1;
+            // c.fill = GridBagConstraints.BOTH;
+            // c.anchor = GridBagConstraints.CENTER;
+            c.insets = new Insets(5, 5, 5, 5);
+            leavingValue.setHorizontalAlignment(SwingConstants.CENTER);
+            leavingValue.setVerticalAlignment(SwingConstants.CENTER);
+            leavingValue.setForeground(Color.WHITE);
+            this.window.add(leavingValue, c);
+        }
 
-	// // get leaving and entering from Controllers inside sim's Room
-	// int leaving = sim.getRoom().getLeaving();
-	// int entering = sim.getRoom().getEntering();
+        // total progress bar
+        JProgressBar totalBar = new JProgressBar();
+        c.gridx = 1;
+        c.gridy = 0;
+        c.gridwidth = 4;
+        c.weightx = 0.8;
+        c.fill = GridBagConstraints.BOTH;
+        c.anchor = GridBagConstraints.CENTER;
+        c.insets = new Insets(5, 5, 5, 5);
+        // progress value
+        totalBar.setValue(0);
+        // progress string
+        totalBar.setStringPainted(true);
+        totalBar.setString("0");
 
-	// }
+        this.window.add(totalBar, c);
 
-	public void updateBar(int node, int value) {
-		// update progress bar for node
-		// update total progress bar
+        this.window.setVisible(true);
 
-		// get all components
-		Component[] components = this.window.getContentPane().getComponents();
+    }
 
-		// total progress bar index
-		int totalBarIndex = 1 + this.config.numNodes;
+    public void updateSimulation() {
 
-		// update total progress bar
-		JProgressBar totalBar = (JProgressBar) components[totalBarIndex];
-		totalBar.setValue(totalBar.getValue() + value);
+        // get all the keys for the controllers
+        ArrayList<String> keys = new ArrayList<>(sim.getRoom().getControllers().keySet());
 
-		// update node progress bar
-		JProgressBar nodeBar = (JProgressBar) components[totalBarIndex + node + 1];
-		nodeBar.setValue(nodeBar.getValue() + value);
+        // new Thread
+        Thread t = new Thread(new Runnable() {
+            public void run() {
+                while (true) {
+                    // get leaving and entering from Controllers inside sim's Room
+                    HashMap<String, Controller> controllers = sim.getRoom().getControllers();
+                    // fori
+                    for (int i = 0; i < keys.size(); i++) {
+                        Controller c = controllers.get(keys.get(i));
+                        int leaving = c.get_leaving();
+                        int entering = c.get_entering();
+                        // update node i
+                        updateNode(i + 1, entering, leaving);
 
-		// update window
-		this.window.validate();
-		this.window.repaint();
+                    }
 
-	}
+                    // sleep 5 seconds
+                    try {
+                        Thread.sleep(500);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+        });
 
-	public void clearWindow() {
-		Container contenu = this.window.getContentPane();
+        t.start();
 
-		// Supprimer tous les composants du conteneur
-		contenu.removeAll();
+    }
 
-		// Mettre à jour la fenêtre pour refléter les changements
-		this.window.validate();
-		this.window.repaint();
-	}
+    public void updateNode(int i, int entering, int leaving) {
+
+        // get all components
+        Component[] components = this.window.getContentPane().getComponents();
+
+        // get node index
+        int nodeLabelIndex = 1 + (i - 1) * 5;
+
+        // get node components
+        Component[] nodeComponents = ((Container) components[nodeLabelIndex]).getComponents();
+
+        // update entering
+        JLabel enteringValue = (JLabel) components[nodeLabelIndex + 2];
+        enteringValue.setText(Integer.toString(entering));
+        // change color to green if entering > 0
+        if (entering > 0) {
+            enteringValue.setForeground(Color.GREEN);
+        } else {
+            enteringValue.setForeground(Color.WHITE);
+        }
+
+        // update leaving
+        JLabel leavingValue = (JLabel) components[nodeLabelIndex + 4];
+        leavingValue.setText(Integer.toString(leaving));
+        // change color to red if leaving > 0
+        if (leaving > 0) {
+            leavingValue.setForeground(Color.RED);
+        } else {
+            leavingValue.setForeground(Color.WHITE);
+        }
+
+        // update window
+        this.window.validate();
+        this.window.repaint();
+
+        updateBar(entering - leaving);
+    }
+
+    public void updateBar(int value) {
+        // update progress bar for node
+        // update total progress bar
+
+        // get all components
+        Component[] components = this.window.getContentPane().getComponents();
+        // print all components and their index
+        // for (int i = 0; i < components.length - 1; i++) {
+        // System.out.println(i + " : " + components[i]);
+        // }
+        // System.exit(0);
+
+        // total progress bar index
+        int totalBarIndex = components.length - 1;
+
+        // update total progress bar
+        JProgressBar totalBar = (JProgressBar) components[totalBarIndex];
+        totalBar.setValue(totalBar.getValue() + value);
+        totalBar.setString(Integer.toString(totalBar.getValue()) + " / " + totalBar.getMaximum() + " ("
+                + Integer.toString(totalBar.getValue() * 100 / totalBar.getMaximum()) + "%)");
+
+        // update window
+        this.window.validate();
+        this.window.repaint();
+
+    }
+
+    public void clearWindow() {
+        Container contenu = this.window.getContentPane();
+
+        // Supprimer tous les composants du conteneur
+        contenu.removeAll();
+
+        // Mettre à jour la fenêtre pour refléter les changements
+        this.window.validate();
+        this.window.repaint();
+    }
 }

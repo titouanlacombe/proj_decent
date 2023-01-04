@@ -163,4 +163,8 @@ public class Simulator {
 
         return false;
     }
+
+    public Room getRoom() {
+        return room;
+    }
 }

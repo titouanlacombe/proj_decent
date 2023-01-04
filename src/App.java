@@ -1,6 +1,7 @@
 import ui.MainWindow;
 
 import javax.swing.*;
+import java.awt.Color;
 
 import config.Config;
 import sim.Simulator;
@@ -11,6 +12,7 @@ public class App {
 
         JFrame jframe = new JFrame(config.windowTitle);
         jframe.setSize(config.windowWidth, config.windowHeight);
+        jframe.getContentPane().setBackground(Color.DARK_GRAY);
 
         Simulator sim = new Simulator(config);
 
