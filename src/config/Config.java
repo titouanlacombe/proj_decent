@@ -24,7 +24,7 @@ public class Config {
 		Config config = new Config();
 
 		// In milliseconds
-		config.entryRate = 4 / 2000.0; // 1 entry every 2 seconds
+		config.entryRate = 10 / 2000.0; // 1 entry every 2 seconds
 		config.visitTimeMean = 2000; // 1 second
 		config.visitTimeStdDev = 1000; // 1 second
 
@@ -33,12 +33,12 @@ public class Config {
 		config.timeScale = 1;
 		config.randSeed = 0;
 		config.simulationTimeFactor = 1;
-		config.simulationUpdateInterval = 100;
+		config.simulationUpdateInterval = 20;
 
 		config.windowTitle = "Simulation";
 		config.windowWidth = 800;
 		config.windowHeight = 600;
-		config.uiRefreshInterval = 50;
+		config.uiRefreshInterval = 20;
 
 		return config;
 	}
