@@ -7,115 +7,123 @@ import sim.protocol.*;
 import utils.*;
 
 public class Node {
-    String uuid;
-    Controller controller;
-    FullAddress nextNodeAddress;
-    FullAddress simulatorAddress;
+	String uuid;
+	Controller controller;
+	FullAddress nextNodeAddress;
+	FullAddress simulatorAddress;
+	Long sleepTime;
 
-    // Args: manager_ip:manager_port
-    public void _main(String[] args) throws Exception {
-        if (args.length < 1) {
-            System.out.println("Error: Invalid number of arguments");
-            System.out.println("Usage: java Node manager_ip:manager_port [simulator_ip:simulator_port]");
-            return;
-        }
+	// Args: manager_ip:manager_port
+	public void _main(String[] args) throws Exception {
+		if (args.length < 1) {
+			System.out.println("Error: Invalid number of arguments");
+			System.out.println("Usage: java Node manager_ip:manager_port [simulator_ip:simulator_port sleep_time]");
+			return;
+		}
 
-        this.uuid = UUID.randomUUID().toString();
+		this.uuid = UUID.randomUUID().toString();
 
-        // Get simulator address
-        if (args.length > 1) {
-            simulatorAddress = FullAddress.fromString(args[1]);
-            System.out.println("Got simulator address: " + simulatorAddress);
-        }
+		// Get simulator address and sleep time
+		if (args.length > 1) {
+			simulatorAddress = FullAddress.fromString(args[1]);
+			System.out.println("Got simulator address: " + simulatorAddress);
 
-        // Creating server
-        ServerSocket serverSocket = new ServerSocket(0);
-        FullAddress myAddress = FullAddress.fromSocket(serverSocket);
-        System.out.println("Node started at " + myAddress);
+			sleepTime = Long.parseLong(args[2]);
+			System.out.println("Got sleep time: " + sleepTime);
+		}
 
-        // Send manager my address
-        FullAddress managerAddress = FullAddress.fromString(args[0]);
-        Socket socket = new Socket(managerAddress.ip, managerAddress.port);
-        System.out.println("Sending my uuid/address to " + managerAddress);
-        String message = uuid + " " + myAddress;
-        socket.getOutputStream().write(message.getBytes());
-        socket.close();
+		// Creating server
+		ServerSocket serverSocket = new ServerSocket(0);
+		FullAddress myAddress = FullAddress.fromSocket(serverSocket);
+		System.out.println("Node started at " + myAddress);
 
-        // Wait for manager to send next node
-        System.out.println("Waiting for manager to send next node");
-        Socket rep_socket = serverSocket.accept();
-        String resp = new String(rep_socket.getInputStream().readAllBytes());
-        rep_socket.close();
-        this.nextNodeAddress = FullAddress.fromString(resp);
-        System.out.println("Received next: " + this.nextNodeAddress + " from manager");
+		// Send manager my address
+		FullAddress managerAddress = FullAddress.fromString(args[0]);
+		Socket socket = new Socket(managerAddress.ip, managerAddress.port);
+		System.out.println("Sending my uuid/address to " + managerAddress);
+		String message = uuid + " " + myAddress;
+		socket.getOutputStream().write(message.getBytes());
+		socket.close();
 
-        // Start controller
-        System.out.println("Setup complete, starting node");
-        this.controller = new Controller();
+		// Wait for manager to send next node
+		System.out.println("Waiting for manager to send next node");
+		Socket rep_socket = serverSocket.accept();
+		String resp = new String(rep_socket.getInputStream().readAllBytes());
+		rep_socket.close();
+		this.nextNodeAddress = FullAddress.fromString(resp);
+		System.out.println("Received next: " + this.nextNodeAddress + " from manager");
 
-        // Start server
-        while (true) {
-            Socket clientSocket = serverSocket.accept();
-            boolean exit = this.handleRequest(clientSocket);
-            clientSocket.close();
+		// Start controller
+		System.out.println("Setup complete, starting node");
+		this.controller = new Controller();
 
-            if (exit) {
-                break;
-            }
-        }
-    }
+		// Start server
+		while (true) {
+			Socket clientSocket = serverSocket.accept();
+			boolean exit = this.handleRequest(clientSocket);
+			clientSocket.close();
 
-    public boolean handleRequest(Socket clientSocket) throws Exception {
-        Request request = Protocol.recv(clientSocket);
-        System.out.println("\n[NODE " + uuid + "] " + request);
+			if (exit) {
+				break;
+			}
+		}
+	}
 
-        switch (request.getCode()) {
-            case ExitRequest.CODE:
-                return true;
-            case ArrivalRequest.CODE:
-                controller.arrival();
-                break;
-            case DepartureRequest.CODE:
-                controller.departure();
-                break;
-            case TokenRequest.CODE:
-                tokenRequest((TokenRequest) request);
-                break;
-            default:
-                System.out.println("Error: Invalid request code");
-                break;
-        }
+	public boolean handleRequest(Socket clientSocket) throws Exception {
+		Request request = Protocol.recv(clientSocket);
+		System.out.println("\n[NODE " + uuid + "] " + request);
 
-        return false;
-    }
+		switch (request.getCode()) {
+			case ExitRequest.CODE:
+				return true;
+			case ArrivalRequest.CODE:
+				controller.arrival();
+				break;
+			case DepartureRequest.CODE:
+				controller.departure();
+				break;
+			case TokenRequest.CODE:
+				tokenRequest((TokenRequest) request);
+				break;
+			default:
+				System.out.println("Error: Invalid request code");
+				break;
+		}
 
-    public void tokenRequest(TokenRequest request) throws Exception {
-        Token token = request.token;
+		return false;
+	}
 
-        System.out.println("Node got token: " + token);
-        System.out.println("Node controller state: " + controller);
+	public void tokenRequest(TokenRequest request) throws Exception {
+		Token token = request.token;
 
-        // Run node controller
-        controller.run(token);
+		System.out.println("Node got token: " + token);
+		System.out.println("Node controller state: " + controller);
 
-        // Send new controller state to simulation server
-        if (simulatorAddress != null) {
-            Protocol.send(simulatorAddress, new SimulationUpdateRequest(uuid, controller));
-        }
+		// Run node controller
+		controller.run(token);
 
-        // Call next node
-        Thread.sleep(100);
-        Protocol.send(nextNodeAddress, new TokenRequest(token));
-    }
+		// Send new controller state to simulation server
+		if (simulatorAddress != null) {
+			Protocol.send(simulatorAddress, new SimulationUpdateRequest(uuid, controller));
+		}
 
-    public static void main(String[] args) {
-        Node node = new Node();
+		// Sleep if needed
+		if (sleepTime != null) {
+			Thread.sleep(sleepTime);
+		}
 
-        try {
-            node._main(args);
-        } catch (Exception e) {
-            System.out.println("Error in main thread");
-            e.printStackTrace();
-        }
-    }
+		// Call next node
+		Protocol.send(nextNodeAddress, new TokenRequest(token));
+	}
+
+	public static void main(String[] args) {
+		Node node = new Node();
+
+		try {
+			node._main(args);
+		} catch (Exception e) {
+			System.out.println("Error in main thread");
+			e.printStackTrace();
+		}
+	}
 }
