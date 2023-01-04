@@ -39,7 +39,9 @@ public class Room {
 	// Make persons leave the room if they have to
 	private void leaving() throws Exception {
 		while (!leavingTimes.isEmpty() && leavingTimes.first() < clock.now()) {
-			leavingTimes.remove(leavingTimes.first());
+			synchronized (leavingTimes) {
+				leavingTimes.remove(leavingTimes.first());
+			}
 
 			String uuid = randomUuid();
 			// Update local controller
@@ -75,8 +77,10 @@ public class Room {
 		System.out.println("Old: " + old);
 		int entered = old.get_entering() - updated.get_entering();
 		System.out.println("Entered: " + entered);
-		for (int i = 0; i < entered; i++) {
-			leavingTimes.add(visitTimeGenerator.get() + clock.now());
+		synchronized (leavingTimes) {
+			for (int i = 0; i < entered; i++) {
+				leavingTimes.add(visitTimeGenerator.get() + clock.now());
+			}
 		}
 
 		// Update controller
