@@ -186,98 +186,56 @@ public class MainWindow extends JFrame {
 
         this.window.setLayout(layout);
 
-        GridBagConstraints c = new GridBagConstraints();
-        c.fill = GridBagConstraints.BOTH;
-        c.anchor = GridBagConstraints.CENTER;
+        GridBagConstraints cLabels = new GridBagConstraints();
+        cLabels.fill = GridBagConstraints.BOTH;
+        cLabels.anchor = GridBagConstraints.CENTER;
+        cLabels.insets = new Insets(5, 5, 5, 5);
+
+        cLabels.weightx = 0.5;
+        cLabels.weighty = 0.5;
 
         // total label
-        JLabel totalLabel = new JLabel("Population");
-        c.gridx = 0;
-        c.gridy = 0;
-        // c.fill = GridBagConstraints.BOTH;
-        // c.anchor = GridBagConstraints.CENTER;
-        c.insets = new Insets(5, 5, 5, 5);
-        totalLabel.setHorizontalAlignment(SwingConstants.CENTER);
-        totalLabel.setVerticalAlignment(SwingConstants.CENTER);
-        totalLabel.setForeground(Color.WHITE);
-        this.window.add(totalLabel, c);
+        SimLabel totalLabel = new SimLabel("Population");
+        cLabels.gridx = 0;
+        cLabels.gridy = 0;
+        this.window.add(totalLabel, cLabels);
 
         // node labels
         for (int i = 1; i <= nbNodes; i++) {
-            JLabel nodeLabel = new JLabel("Contrôleur " + i);
-            c.gridx = 0;
-            c.gridy = i + 1;
-            c.weightx = 0.5;
-            c.weighty = 0.5;
-            // c.fill = GridBagConstraints.BOTH;
-            // c.anchor = GridBagConstraints.CENTER;
-            c.insets = new Insets(5, 5, 5, 5);
-            nodeLabel.setHorizontalAlignment(SwingConstants.CENTER);
-            nodeLabel.setVerticalAlignment(SwingConstants.CENTER);
-            nodeLabel.setForeground(Color.WHITE);
-            this.window.add(nodeLabel, c);
+            cLabels.gridy = i + 1;
+
+            SimLabel nodeLabel = new SimLabel("Controleur " + i);
+            cLabels.gridx = 0;
+
+            this.window.add(nodeLabel, cLabels);
 
             // node infos
             // label "E :" + entering
-            JLabel enteringLabel = new JLabel("Veut entrer : ");
-            c.gridx = 1;
-            c.gridy = i + 1;
-            // c.fill = GridBagConstraints.BOTH;
-            // c.anchor = GridBagConstraints.CENTER;
-            c.insets = new Insets(5, 5, 5, 5);
-            enteringLabel.setHorizontalAlignment(SwingConstants.CENTER);
-            enteringLabel.setVerticalAlignment(SwingConstants.CENTER);
-            enteringLabel.setForeground(Color.WHITE);
+            SimLabel enteringLabel = new SimLabel("Veut entrer : ");
+            cLabels.gridx = 1;
 
-            this.window.add(enteringLabel, c);
-            JLabel enteringValue = new JLabel("0");
-            c.gridx = 2;
-            c.gridy = i + 1;
-            // c.fill = GridBagConstraints.BOTH;
-            // c.anchor = GridBagConstraints.CENTER;
-            c.insets = new Insets(5, 5, 5, 5);
-            enteringValue.setHorizontalAlignment(SwingConstants.CENTER);
-            enteringValue.setVerticalAlignment(SwingConstants.CENTER);
-            enteringValue.setForeground(Color.WHITE);
-            this.window.add(enteringValue, c);
+            this.window.add(enteringLabel, cLabels);
+            SimLabel enteringValue = new SimLabel("0");
+            cLabels.gridx = 2;
+            this.window.add(enteringValue, cLabels);
             // label "S :" + leaving
-            JLabel leavingLabel = new JLabel("Veut sortir : ");
-            c.gridx = 3;
-            c.gridy = i + 1;
-            // c.fill = GridBagConstraints.BOTH;
-            // c.anchor = GridBagConstraints.CENTER;
-            c.insets = new Insets(5, 5, 5, 5);
-            leavingLabel.setHorizontalAlignment(SwingConstants.CENTER);
-            leavingLabel.setVerticalAlignment(SwingConstants.CENTER);
-            leavingLabel.setForeground(Color.WHITE);
-            this.window.add(leavingLabel, c);
-            JLabel leavingValue = new JLabel("0");
-            c.gridx = 4;
-            c.gridy = i + 1;
-            // c.fill = GridBagConstraints.BOTH;
-            // c.anchor = GridBagConstraints.CENTER;
-            c.insets = new Insets(5, 5, 5, 5);
-            leavingValue.setHorizontalAlignment(SwingConstants.CENTER);
-            leavingValue.setVerticalAlignment(SwingConstants.CENTER);
-            leavingValue.setForeground(Color.WHITE);
-            this.window.add(leavingValue, c);
+            SimLabel leavingLabel = new SimLabel("Veut sortir : ");
+            cLabels.gridx = 3;
+            this.window.add(leavingLabel, cLabels);
+
+            SimLabel leavingValue = new SimLabel("0");
+            cLabels.gridx = 4;
+            this.window.add(leavingValue, cLabels);
         }
 
+        GridBagConstraints c = cLabels;
+
         // total progress bar
-        JProgressBar totalBar = new JProgressBar();
+        SimProgBar totalBar = new SimProgBar(config.roomCapacity);
         c.gridx = 1;
         c.gridy = 0;
         c.gridwidth = 4;
         c.weightx = 0.8;
-        c.fill = GridBagConstraints.BOTH;
-        c.anchor = GridBagConstraints.CENTER;
-        c.insets = new Insets(5, 5, 5, 5);
-        // progress value
-        totalBar.setValue(0);
-        totalBar.setMaximum(config.roomCapacity);
-        // progress string
-        totalBar.setStringPainted(true);
-        totalBar.setString("0");
 
         this.window.add(totalBar, c);
 
