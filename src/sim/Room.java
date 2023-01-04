@@ -98,4 +98,8 @@ public class Room {
     public HashMap<String, Controller> getControllers() {
         return controllers;
     }
+
+    public int getNumber() {
+        return leavingTimes.size();
+    }
 }

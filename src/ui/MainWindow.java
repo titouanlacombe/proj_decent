@@ -39,22 +39,16 @@ public class MainWindow extends JFrame {
             @Override
             public void windowClosing(WindowEvent e) {
 
-                // ask for confirmation
-                int confirmed = JOptionPane.showConfirmDialog(null, "Are you sure you want to exit the program?",
-                        "Exit Program Message Box", JOptionPane.YES_NO_OPTION);
-
-                if (confirmed == JOptionPane.YES_OPTION) {
-
-                    // kill the nodes
-                    if (sim != null) {
-                        sim.killNodes();
-                    }
-
-                    // destroy the window
-                    window.dispose();
-
-                    System.exit(0);
+                // kill the nodes
+                if (sim != null) {
+                    sim.killNodes();
                 }
+
+                // destroy the window
+                window.dispose();
+
+                System.exit(0);
+
             }
 
             @Override
@@ -280,6 +274,7 @@ public class MainWindow extends JFrame {
         c.insets = new Insets(5, 5, 5, 5);
         // progress value
         totalBar.setValue(0);
+        totalBar.setMaximum(config.roomCapacity);
         // progress string
         totalBar.setStringPainted(true);
         totalBar.setString("0");
@@ -308,8 +303,11 @@ public class MainWindow extends JFrame {
                         int entering = c.get_entering();
                         // update node i
                         updateNode(i + 1, entering, leaving);
-
                     }
+
+                    // update total
+                    int total = sim.getRoom().getNumber();
+                    updateBar(total);
 
                     // sleep 5 seconds
                     try {
@@ -359,8 +357,6 @@ public class MainWindow extends JFrame {
         // update window
         this.window.validate();
         this.window.repaint();
-
-        updateBar(entering - leaving);
     }
 
     public void updateBar(int value) {
@@ -369,20 +365,15 @@ public class MainWindow extends JFrame {
 
         // get all components
         Component[] components = this.window.getContentPane().getComponents();
-        // print all components and their index
-        // for (int i = 0; i < components.length - 1; i++) {
-        // System.out.println(i + " : " + components[i]);
-        // }
-        // System.exit(0);
 
         // total progress bar index
         int totalBarIndex = components.length - 1;
 
         // update total progress bar
         JProgressBar totalBar = (JProgressBar) components[totalBarIndex];
-        totalBar.setValue(totalBar.getValue() + value);
-        totalBar.setString(Integer.toString(totalBar.getValue()) + " / " + totalBar.getMaximum() + " ("
-                + Integer.toString(totalBar.getValue() * 100 / totalBar.getMaximum()) + "%)");
+        totalBar.setValue(value);
+        totalBar.setString(Integer.toString(value) + " / " + totalBar.getMaximum() + " ("
+                + Integer.toString(value * 100 / totalBar.getMaximum()) + "%)");
 
         // update window
         this.window.validate();
