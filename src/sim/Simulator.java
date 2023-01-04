@@ -20,6 +20,8 @@ public class Simulator {
     private ServerSocket serverSocket;
     private Room room;
 
+    private String activeUuid;
+
     public Simulator(Config config) {
         this.config = config;
         this.room = new Room(config.entryRate,
@@ -143,6 +145,7 @@ public class Simulator {
     }
 
     public void simulationUpdate(SimulationUpdateRequest request) throws Exception {
+        activeUuid = request.sender_uuid;
         room.update(request.sender_uuid, request.controller);
     }
 
@@ -166,5 +169,9 @@ public class Simulator {
 
     public Room getRoom() {
         return room;
+    }
+
+    public String getActiveUuid() {
+        return activeUuid;
     }
 }

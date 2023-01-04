@@ -219,7 +219,7 @@ public class MainWindow extends JFrame {
 
             // node infos
             // label "E :" + entering
-            JLabel enteringLabel = new JLabel("E : ");
+            JLabel enteringLabel = new JLabel("Veut entrer : ");
             c.gridx = 1;
             c.gridy = i + 1;
             // c.fill = GridBagConstraints.BOTH;
@@ -241,7 +241,7 @@ public class MainWindow extends JFrame {
             enteringValue.setForeground(Color.WHITE);
             this.window.add(enteringValue, c);
             // label "S :" + leaving
-            JLabel leavingLabel = new JLabel("S : ");
+            JLabel leavingLabel = new JLabel("Veut sortir : ");
             c.gridx = 3;
             c.gridy = i + 1;
             // c.fill = GridBagConstraints.BOTH;
@@ -296,13 +296,17 @@ public class MainWindow extends JFrame {
                 while (true) {
                     // get leaving and entering from Controllers inside sim's Room
                     HashMap<String, Controller> controllers = sim.getRoom().getControllers();
+
+                    // get Nodes
+                    // ArrayList<Node> nodes = sim.getRoom().getNodes();
+
                     // fori
                     for (int i = 0; i < keys.size(); i++) {
                         Controller c = controllers.get(keys.get(i));
                         int leaving = c.get_leaving();
                         int entering = c.get_entering();
                         // update node i
-                        updateNode(i + 1, entering, leaving);
+                        updateNode(i + 1, entering, leaving, keys.get(i).equals(sim.getActiveUuid()));
                     }
 
                     // update total
@@ -311,7 +315,7 @@ public class MainWindow extends JFrame {
 
                     // sleep 5 seconds
                     try {
-                        Thread.sleep(500);
+                        Thread.sleep(config.uiRefreshInterval);
                     } catch (InterruptedException e) {
                         e.printStackTrace();
                     }
@@ -323,7 +327,7 @@ public class MainWindow extends JFrame {
 
     }
 
-    public void updateNode(int i, int entering, int leaving) {
+    public void updateNode(int i, int entering, int leaving, boolean active) {
 
         // get all components
         Component[] components = this.window.getContentPane().getComponents();
@@ -333,6 +337,21 @@ public class MainWindow extends JFrame {
 
         // get node components
         Component[] nodeComponents = ((Container) components[nodeLabelIndex]).getComponents();
+
+        if (active) {
+            for (int j = nodeLabelIndex; j < nodeLabelIndex + 5; j++) {
+                // change color to yellow
+                JLabel nodeLabel = (JLabel) components[j];
+                nodeLabel.setForeground(Color.YELLOW);
+            }
+
+        } else {
+            for (int j = nodeLabelIndex; j < nodeLabelIndex + 5; j++) {
+                // change color to white
+                JLabel nodeLabel = (JLabel) components[j];
+                nodeLabel.setForeground(Color.WHITE);
+            }
+        }
 
         // update entering
         JLabel enteringValue = (JLabel) components[nodeLabelIndex + 2];
