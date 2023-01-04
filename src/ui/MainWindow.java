@@ -191,7 +191,7 @@ public class MainWindow extends JFrame {
         c.anchor = GridBagConstraints.CENTER;
 
         // total label
-        JLabel totalLabel = new JLabel("Total");
+        JLabel totalLabel = new JLabel("Population");
         c.gridx = 0;
         c.gridy = 0;
         // c.fill = GridBagConstraints.BOTH;
@@ -204,7 +204,7 @@ public class MainWindow extends JFrame {
 
         // node labels
         for (int i = 1; i <= nbNodes; i++) {
-            JLabel nodeLabel = new JLabel("Node " + i);
+            JLabel nodeLabel = new JLabel("Contrôleur " + i);
             c.gridx = 0;
             c.gridy = i + 1;
             c.weightx = 0.5;
@@ -299,7 +299,7 @@ public class MainWindow extends JFrame {
 
                     // get Nodes
                     // ArrayList<Node> nodes = sim.getRoom().getNodes();
-
+                    int total = 0;
                     // fori
                     for (int i = 0; i < keys.size(); i++) {
                         Controller c = controllers.get(keys.get(i));
@@ -307,10 +307,13 @@ public class MainWindow extends JFrame {
                         int entering = c.get_entering();
                         // update node i
                         updateNode(i + 1, entering, leaving, keys.get(i).equals(sim.getActiveUuid()));
+
+                        total += leaving;
+
                     }
 
                     // update total
-                    int total = sim.getRoom().getNumber();
+                    total += sim.getRoom().getNumber();
                     updateBar(total);
 
                     // sleep 5 seconds
