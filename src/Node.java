@@ -7,54 +7,58 @@ import sim.protocol.*;
 import utils.*;
 
 public class Node {
-	String uuid;
-	Controller controller;
-	FullAddress nextNodeAddress;
-	FullAddress simulatorAddress;
-	Long sleepTime;
+	private Logger logger;
+	private String uuid;
+	private Controller controller;
+	private FullAddress nextNodeAddress;
+	private FullAddress simulatorAddress;
+	private Long sleepTime;
+
+	public Node() {
+		this.uuid = UUID.randomUUID().toString();
+		this.logger = new Logger("Node " + this.uuid);
+	}
 
 	// Args: manager_ip:manager_port
 	public void _main(String[] args) throws Exception {
 		if (args.length < 1) {
-			System.out.println("Error: Invalid number of arguments");
-			System.out.println("Usage: java Node manager_ip:manager_port [simulator_ip:simulator_port sleep_time]");
+			logger.error(
+					"Error: Invalid number of arguments\nUsage: java Node manager_ip:manager_port [simulator_ip:simulator_port sleep_time]");
 			return;
 		}
-
-		this.uuid = UUID.randomUUID().toString();
 
 		// Get simulator address and sleep time
 		if (args.length > 1) {
 			simulatorAddress = FullAddress.fromString(args[1]);
-			System.out.println("Got simulator address: " + simulatorAddress);
+			logger.debug("Got simulator address: " + simulatorAddress);
 
 			sleepTime = Long.parseLong(args[2]);
-			System.out.println("Got sleep time: " + sleepTime);
+			logger.debug("Got sleep time: " + sleepTime);
 		}
 
 		// Creating server
 		ServerSocket serverSocket = new ServerSocket(0);
 		FullAddress myAddress = FullAddress.fromSocket(serverSocket);
-		System.out.println("Node started at " + myAddress);
+		logger.debug("Node started at " + myAddress);
 
 		// Send manager my address
 		FullAddress managerAddress = FullAddress.fromString(args[0]);
 		Socket socket = new Socket(managerAddress.ip, managerAddress.port);
-		System.out.println("Sending my uuid/address to " + managerAddress);
+		logger.debug("Sending my uuid/address to " + managerAddress);
 		String message = uuid + " " + myAddress;
 		socket.getOutputStream().write(message.getBytes());
 		socket.close();
 
 		// Wait for manager to send next node
-		System.out.println("Waiting for manager to send next node");
+		logger.debug("Waiting for manager to send next node");
 		Socket rep_socket = serverSocket.accept();
 		String resp = new String(rep_socket.getInputStream().readAllBytes());
 		rep_socket.close();
 		this.nextNodeAddress = FullAddress.fromString(resp);
-		System.out.println("Received next: " + this.nextNodeAddress + " from manager");
+		logger.debug("Received next: " + this.nextNodeAddress + " from manager");
 
 		// Start controller
-		System.out.println("Setup complete, starting node");
+		logger.info("Setup complete, starting node");
 		this.controller = new Controller();
 
 		// Start server
@@ -71,7 +75,7 @@ public class Node {
 
 	public boolean handleRequest(Socket clientSocket) throws Exception {
 		Request request = Protocol.recv(clientSocket);
-		System.out.println("\n[NODE " + uuid + "] " + request);
+		logger.info(request.toString());
 
 		switch (request.getCode()) {
 			case ExitRequest.CODE:
@@ -86,7 +90,7 @@ public class Node {
 				tokenRequest((TokenRequest) request);
 				break;
 			default:
-				System.out.println("Error: Invalid request code");
+				logger.error("Error: Invalid request code");
 				break;
 		}
 
@@ -96,8 +100,8 @@ public class Node {
 	public void tokenRequest(TokenRequest request) throws Exception {
 		Token token = request.token;
 
-		System.out.println("Node got token: " + token);
-		System.out.println("Node controller state: " + controller);
+		logger.debug("Node got token: " + token);
+		logger.debug("Node controller state: " + controller);
 
 		// Run node controller
 		controller.run(token);
@@ -122,8 +126,7 @@ public class Node {
 		try {
 			node._main(args);
 		} catch (Exception e) {
-			System.out.println("Error in main thread");
-			e.printStackTrace();
+			node.logger.exception(e);
 		}
 	}
 }

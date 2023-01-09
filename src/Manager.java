@@ -8,18 +8,19 @@ import sim.protocol.TokenRequest;
 import utils.*;
 
 public class Manager {
+	private Logger logger = new Logger("Manager");
+
 	// Args: num_nodes => write to stdout the ip:port of manager
-	public static void _main(String[] args) throws Exception {
+	public void _main(String[] args) throws Exception {
 		if (args.length < 2) {
-			System.out.println("Error: Invalid number of arguments");
-			System.out.println("Usage: java Manager num_nodes room_capacity");
+			logger.error("Error: Invalid number of arguments\nUsage: java Manager num_nodes room_capacity");
 			return;
 		}
 
 		// Create server
 		ServerSocket serverSocket = new ServerSocket(0);
 		FullAddress managerAddress = FullAddress.fromSocket(serverSocket);
-		System.out.println("Manager started at " + managerAddress);
+		logger.debug("Manager started at " + managerAddress);
 
 		// Write address to file file for automation
 		File server_file = new File("./data/manager_address.txt");
@@ -31,7 +32,7 @@ public class Manager {
 
 		// Wait for nodes
 		int numNodes = Integer.parseInt(args[0]);
-		System.out.println("Waiting for " + numNodes + " nodes to connect");
+		logger.debug("Waiting for " + numNodes + " nodes to connect");
 		HashMap<String, FullAddress> nodes = new HashMap<String, FullAddress>();
 		for (int i = 0; i < numNodes; i++) {
 			// Get message
@@ -43,7 +44,7 @@ public class Manager {
 			String[] parts = node_message.split(" ");
 			String uuid = parts[0];
 			FullAddress node_address = FullAddress.fromString(parts[1]);
-			System.out.println("Node " + uuid + " registered with address: " + node_address);
+			logger.debug("Node " + uuid + " registered with address: " + node_address);
 
 			nodes.put(uuid, node_address);
 		}
@@ -64,7 +65,7 @@ public class Manager {
 			FullAddress current = nodes.get(uuids.get(i));
 			FullAddress next = nodes.get(uuids.get((i + 1) % numNodes));
 
-			System.out.println("Calling back " + current + " with " + next);
+			logger.debug("Calling back " + current + " with " + next);
 
 			Socket socket = new Socket(current.ip, current.port);
 			socket.getOutputStream().write(next.toString().getBytes());
@@ -76,20 +77,20 @@ public class Manager {
 		Token initialToken = new Token(roomCapacity);
 
 		// Sending start message to node 0
-		System.out.println("Sending start message to node 0");
+		logger.debug("Sending start message to node 0");
 		FullAddress node0 = nodes.get(uuids.get(0));
 		Protocol.send(node0, new TokenRequest(initialToken));
 
-		System.out.println("Nodes setup complete, exiting");
+		logger.info("Nodes setup complete, exiting");
 		serverSocket.close();
 	}
 
 	public static void main(String[] args) {
+		Manager manager = new Manager();
 		try {
-			_main(args);
+			manager._main(args);
 		} catch (Exception e) {
-			System.out.println("Error in main thread");
-			e.printStackTrace();
+			manager.logger.exception(e);
 		}
 	}
 }

@@ -11,10 +11,11 @@ import sim.protocol.Request;
 import sim.protocol.SimulationUpdateRequest;
 import config.Config;
 import utils.FullAddress;
+import utils.Logger;
 import utils.NormalGenerator;
 
 public class Simulator {
-
+	private Logger logger = new Logger("Simulator");
 	private Config config;
 	private Process[] nodes_procs;
 	private ServerSocket serverSocket;
@@ -39,7 +40,7 @@ public class Simulator {
 		// Create server
 		serverSocket = new ServerSocket(0);
 		FullAddress simulatorAddress = FullAddress.fromSocket(serverSocket);
-		System.out.println("Simulator started at " + simulatorAddress);
+		logger.info("Simulator started at " + simulatorAddress);
 
 		// Delete files from previous runs
 		File managerAddressFile = new File("./data/manager_address.txt");
@@ -48,7 +49,7 @@ public class Simulator {
 		nodesFile.delete();
 
 		// Start manager subprocess
-		System.out.println("Starting manager");
+		logger.info("Starting manager");
 		ProcessBuilder managerBuilder = new ProcessBuilder(
 				"java", "-cp", "src", "Manager",
 				String.valueOf(config.numNodes),
@@ -58,11 +59,11 @@ public class Simulator {
 		Process manager = managerBuilder.start();
 
 		// Wait for newline in manager_address.txt
-		System.out.println("Waiting for manager address");
+		logger.debug("Waiting for manager address");
 		while (!managerAddressFile.exists()) {
 			Thread.sleep(100);
 			if (!manager.isAlive()) {
-				System.out.println("Manager exited unexpectedly");
+				logger.error("Manager exited unexpectedly");
 				System.exit(1);
 			}
 		}
@@ -72,7 +73,7 @@ public class Simulator {
 		FullAddress managerAddress = FullAddress.fromString(managerAddressString);
 
 		// Start nodes subprocesses
-		System.out.println("Starting " + config.numNodes + " nodes");
+		logger.info("Starting " + config.numNodes + " nodes");
 		ProcessBuilder nodeBuilder = new ProcessBuilder(
 				"java", "-cp", "src", "Node",
 				managerAddress.toString(),
@@ -87,15 +88,15 @@ public class Simulator {
 		}
 
 		// Wait manager to finish
-		System.out.println("Waiting for manager to finish");
+		logger.debug("Waiting for manager to finish");
 		int code = manager.waitFor();
 		if (code != 0) {
-			System.out.println("Manager exited with code " + code);
+			logger.error("Manager exited with code " + code);
 			System.exit(code);
 		}
 
 		// Recover nodes addresses from nodes_addresses.txt
-		System.out.println("Recovering nodes addresses");
+		logger.debug("Recovering nodes addresses");
 		reader = new BufferedReader(new FileReader(nodesFile));
 		HashMap<String, FullAddress> nodes = new HashMap<String, FullAddress>();
 		for (int i = 0; i < config.numNodes; i++) {
@@ -110,7 +111,7 @@ public class Simulator {
 	}
 
 	public void startSim() throws Exception {
-		System.out.println("Startup complete, starting simulation");
+		logger.info("Startup complete, starting simulation");
 
 		// Start server
 		Thread serverThread = new Thread(new Runnable() {
@@ -126,8 +127,7 @@ public class Simulator {
 						}
 					}
 				} catch (Exception e) {
-					System.out.println("Server thread exited unexpectedly");
-					e.printStackTrace();
+					logger.exception(e);
 				}
 			}
 		});
@@ -140,14 +140,13 @@ public class Simulator {
 				try {
 					room.init_sim();
 					while (true) {
-						// System.out.println("\nRoom update tick");
+						// logger.debug("Room update tick");
 
 						room.update_people();
 						Thread.sleep(config.simulationUpdateInterval);
 					}
 				} catch (Exception e) {
-					System.out.println("Simulation thread exited unexpectedly");
-					e.printStackTrace();
+					logger.exception(e);
 				}
 			}
 		});
@@ -157,12 +156,12 @@ public class Simulator {
 
 	public void killNodes() {
 		if (nodes_procs != null) {
-			System.out.println("Killing nodes");
+			logger.debug("Killing nodes");
 			for (int i = 0; i < config.numNodes; i++) {
 				nodes_procs[i].destroy();
 			}
 		}
-		System.out.println("Done");
+		logger.info("Done");
 
 	}
 
@@ -173,7 +172,7 @@ public class Simulator {
 
 	public boolean handleRequest(Socket clientSocket) throws Exception {
 		Request request = Protocol.recv(clientSocket);
-		System.out.println("\n[SIMULATOR] " + request);
+		logger.info(request.toString());
 
 		switch (request.getCode()) {
 			case ExitRequest.CODE:
@@ -182,7 +181,7 @@ public class Simulator {
 				simulationUpdate((SimulationUpdateRequest) request);
 				break;
 			default:
-				System.out.println("Error: Invalid request code");
+				logger.error("Error: Invalid request code");
 				break;
 		}
 
