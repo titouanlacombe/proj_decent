@@ -77,9 +77,9 @@ public class Manager {
 		Token initialToken = new Token(roomCapacity);
 
 		// Sending start message to node 0
-		Logging.debug("Sending start message to node 0");
-		FullAddress node0 = nodes.get(uuids.get(0));
-		Protocol.send(node0, new TokenRequest(initialToken));
+		String uuid0 = uuids.get(0);
+		Logging.debug("Starting loop by sending " + initialToken + " to " + uuid0);
+		Protocol.send(nodes.get(uuid0), new TokenRequest(initialToken));
 
 		Logging.info("Nodes setup complete, exiting");
 		serverSocket.close();
