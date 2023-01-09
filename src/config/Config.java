@@ -45,13 +45,26 @@ public class Config {
 		return config;
 	}
 
+	public String[] getKeys() {
+		Field[] fields = this.getClass().getDeclaredFields();
+		String[] keys = new String[fields.length];
+		for (int i = 0; i < fields.length; i++) {
+			keys[i] = fields[i].getName();
+		}
+		return keys;
+	}
+
+	public Object get(String key) throws NoSuchFieldException, IllegalAccessException {
+		return this.getClass().getDeclaredField(key).get(this);
+	}
+
 	public String toString() {
 		// Using reflexion
-		Field[] fields = this.getClass().getDeclaredFields();
+		String[] keys = getKeys();
 		String str = "Config:\n";
-		for (Field field : fields) {
+		for (String key : keys) {
 			try {
-				str += "\t" + field.getName() + ": " + field.get(this) + "\n";
+				str += "\t" + key + ": " + this.get(key) + "\n";
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
