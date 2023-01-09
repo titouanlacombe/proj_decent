@@ -4,15 +4,16 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowListener;
+import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Set;
 
 import javax.swing.*;
 
 import sim.Controller;
 import sim.Simulator;
 import config.Config;
+import utils.Logger;
 
 import java.awt.*;
 
@@ -20,11 +21,13 @@ public class MainWindow extends JFrame {
     JFrame window;
     Config config;
     Simulator sim;
+    Logger logger;
 
     public MainWindow(JFrame window, Config config, Simulator sim) {
         this.window = window;
         this.config = config;
         this.sim = sim;
+        this.logger = new Logger("MainWindow");
     }
 
     public void initWindow() {
@@ -100,38 +103,65 @@ public class MainWindow extends JFrame {
 
     public void configWindow() {
 
-        // Nodes field
-        JTextField nodesTf = new JTextField();
-        // label for nodesTf
-        JLabel nodesLabel = new JLabel("Nombre de noeuds");
-        nodesLabel.setForeground(Color.WHITE);
-        // persons field
-        JTextField personsTf = new JTextField();
-        // label for personsTf
-        JLabel personsLabel = new JLabel("Nombre de personnes");
-        personsLabel.setForeground(Color.WHITE);
+        ArrayList<String> keys = config.getKeys();
+        for (int i = 0; i < keys.size(); i++) {
+            JTextField keyTf = new JTextField();
+            keyTf.setBounds(220, 30 * (i + 1), 100, 30);
+            Object keyValue;
+            try {
+                keyValue = config.get(keys.get(i));
+            } catch (Exception e) {
+                keyValue = "Error";
+            }
+            String keyString = keyValue.toString();
+            keyTf.setText(keyString);
+            JLabel keyLabel = new JLabel(keys.get(i));
+            keyLabel.setBounds(50, 30 * (i + 1), 200, 30);
+            keyLabel.setForeground(Color.WHITE);
 
-        nodesLabel.setBounds(50, 20, 200, 30);
-        nodesTf.setBounds(220, 20, 100, 30);
-        nodesTf.setText(Integer.toString(config.numNodes));
-
-        personsLabel.setBounds(50, 60, 200, 30);
-        personsTf.setBounds(220, 60, 100, 30);
-        personsTf.setText(Integer.toString(config.roomCapacity));
-
-        this.window.add(nodesTf);
-        this.window.add(nodesLabel);
-        this.window.add(personsTf);
-        this.window.add(personsLabel);
+            this.window.add(keyLabel);
+            this.window.add(keyTf);
+        }
 
         // "OK" button
         JButton okButton = new JButton("OK");
-        okButton.setBounds(50, 100, 100, 30);
+        okButton.setBounds(50, (keys.size() + 1) * 30, 100, 30);
         okButton.addActionListener(
                 new ActionListener() {
                     public void actionPerformed(ActionEvent e) {
-                        config.numNodes = Integer.parseInt(nodesTf.getText());
-                        config.roomCapacity = Integer.parseInt(personsTf.getText());
+
+                        // get components to find the right textfields
+                        Component[] components = window.getContentPane().getComponents();
+
+                        for (int i = 0; i < components.length; i++) {
+                            System.out.println(components[i]);
+                        }
+
+                        for (int i = 0; i < components.length; i++) {
+                            if ((components[i] instanceof JLabel)
+                                    && keys.contains(((JLabel) components[i]).getText())) {
+                                System.out.println(components[i]);
+                                String key = ((JLabel) components[i]).getText();
+                                System.out.println("Key : " + key);
+                                String value = ((JTextField) components[i + 1]).getText();
+                                try {
+                                    Field field = config.getField(key);
+                                    if (field.getType().isAssignableFrom(int.class)) {
+                                        config.set(key, Integer.valueOf(value));
+                                    } else if (field.getType().isAssignableFrom(double.class)) {
+                                        config.set(key, Double.valueOf(value));
+                                    } else if (field.getType().isAssignableFrom(boolean.class)) {
+                                        config.set(key, Boolean.valueOf(value));
+                                    } else if (field.getType().isAssignableFrom(String.class)) {
+                                        config.set(key, value);
+                                    }
+
+                                } catch (Exception err) {
+                                    logger.error("Error when trying to modify config : \n" + err);
+                                }
+                            }
+                        }
+
                         clearWindow();
 
                         System.out.println("Starting simulation with " + config);
@@ -143,8 +173,6 @@ public class MainWindow extends JFrame {
                             clearWindow();
                             simulationWindow(config.numNodes);
                             sim.startSim();
-                            // start updateSimulation() in a new thread
-
                             updateSimulation();
 
                         } catch (Exception ex) {
@@ -285,9 +313,6 @@ public class MainWindow extends JFrame {
 
         // get node index
         int nodeLabelIndex = 1 + (i - 1) * 5;
-
-        // get node components
-        Component[] nodeComponents = ((Container) components[nodeLabelIndex]).getComponents();
 
         if (active) {
             for (int j = nodeLabelIndex; j < nodeLabelIndex + 5; j++) {
