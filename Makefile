@@ -13,7 +13,6 @@ build:
 clean:
 	rm -rf data
 	rm -rf $(BIN_DIR)
-	find . -name "*.class" -type f -delete
 
 start_manager: data
 	java -cp $(BIN_DIR) Manager $(ARGS)
