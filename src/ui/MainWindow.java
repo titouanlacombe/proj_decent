@@ -100,9 +100,6 @@ public class MainWindow extends JFrame {
 
     public void configWindow() {
 
-        // Display config info
-        System.out.println(config);
-
         // Nodes field
         JTextField nodesTf = new JTextField();
         // label for nodesTf
@@ -133,18 +130,11 @@ public class MainWindow extends JFrame {
         okButton.addActionListener(
                 new ActionListener() {
                     public void actionPerformed(ActionEvent e) {
-                        // print content of nodesTf and personsTf
-                        System.out.println("Starting simulation with " + nodesTf.getText() + " nodes and "
-                                + personsTf.getText() + " persons");
-
-                        int numNodes = Integer.parseInt(nodesTf.getText());
-                        int numPersons = Integer.parseInt(personsTf.getText());
-                        // Config config = new Config(nb_nodes, nb_persons);
+                        config.numNodes = Integer.parseInt(nodesTf.getText());
+                        config.roomCapacity = Integer.parseInt(personsTf.getText());
                         clearWindow();
-                        config.numNodes = numNodes;
-                        config.roomCapacity = numPersons;
 
-                        System.out.println(config.toString());
+                        System.out.println("Starting simulation with " + config);
 
                         startWindow();
                         sim = new Simulator(config);
