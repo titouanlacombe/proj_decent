@@ -52,7 +52,7 @@ public class Protocol {
 		String code = parts[0];
 
 		if (!requestMap.containsKey(code)) {
-			throw new Exception("Invalid request code: " + code);
+			throw new Exception(String.format("Invalid request code: '%s'", code));
 		}
 
 		Request request = requestMap.get(code).getDeclaredConstructor().newInstance();

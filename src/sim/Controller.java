@@ -2,6 +2,8 @@ package sim;
 
 import java.io.Serializable;
 
+import utils.Logging;
+
 public class Controller implements Serializable {
 	private int entering; // Waiting to enter
 	private int leaving; // Waiting to leave
@@ -12,13 +14,13 @@ public class Controller implements Serializable {
 	}
 
 	private void make_enter(Token token, int n) {
-		System.out.println("Controller: " + n + " entering");
+		Logging.info("Controller: " + n + " entering");
 		token.placesLeft -= n;
 		entering -= n;
 	}
 
 	private void make_leave(Token token, int n) {
-		System.out.println("Controller: " + n + " leaving");
+		Logging.info("Controller: " + n + " leaving");
 		token.placesLeft += n;
 		leaving -= n;
 	}

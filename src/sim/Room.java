@@ -4,6 +4,7 @@ import java.util.*;
 
 import sim.protocol.*;
 import utils.FullAddress;
+import utils.Logging;
 import utils.NormalGenerator;
 
 public class Room {
@@ -70,13 +71,13 @@ public class Room {
 	}
 
 	public void update_controller(String sender_uuid, Controller updated) throws Exception {
-		System.out.println("Update controller from " + sender_uuid + ": " + updated);
+		Logging.info("Update controller from " + sender_uuid + ": " + updated);
 
 		// Compute change in entering
 		Controller old = controllers.get(sender_uuid);
-		System.out.println("Old: " + old);
+		Logging.debug("Old: " + old);
 		int entered = old.get_entering() - updated.get_entering();
-		System.out.println("Entered: " + entered);
+		Logging.debug("Entered: " + entered);
 		synchronized (leavingTimes) {
 			for (int i = 0; i < entered; i++) {
 				leavingTimes.add(visitTimeGenerator.get() + clock.now());
@@ -86,8 +87,8 @@ public class Room {
 		// Update controller
 		controllers.put(sender_uuid, updated);
 
-		System.out.println("Leaving times: " + leavingTimes);
-		System.out.println("Size: " + leavingTimes.size());
+		Logging.debug("Leaving times: " + leavingTimes);
+		Logging.debug("Size: " + leavingTimes.size());
 	}
 
 	public void init_sim() {
@@ -100,7 +101,7 @@ public class Room {
 
 		clock.startTimer();
 
-		// System.out.println("Leaving times: " + leavingTimes);
+		// logger.debug("Leaving times: " + leavingTimes);
 	}
 
 	public HashMap<String, Controller> getControllers() {

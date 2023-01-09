@@ -1,4 +1,6 @@
 import ui.MainWindow;
+import utils.Logger;
+import utils.Logging;
 
 import javax.swing.*;
 import java.awt.Color;
@@ -7,22 +9,28 @@ import config.Config;
 import sim.Simulator;
 
 public class App {
-    public static void main(String[] args) {
-        Config config = Config._default();
+	public void _main(String[] args) throws Exception {
+		Logging.init("App", "./data/app.log");
 
-        JFrame jframe = new JFrame(config.windowTitle);
-        jframe.setSize(config.windowWidth, config.windowHeight);
-        jframe.getContentPane().setBackground(Color.DARK_GRAY);
+		Config config = Config._default();
 
-        try {
+		JFrame jframe = new JFrame(config.windowTitle);
+		jframe.setSize(config.windowWidth, config.windowHeight);
+		jframe.getContentPane().setBackground(Color.DARK_GRAY);
 
-            Simulator sim = new Simulator(config);
-            MainWindow mwindow = new MainWindow(jframe, config, sim);
-            mwindow.initWindow();
-            mwindow.configWindow();
-        } catch (Exception e) {
-            System.out.println("Error: ");
-            e.printStackTrace();
-        }
-    }
+		Simulator sim = new Simulator(config);
+		MainWindow mwindow = new MainWindow(Logger.fileLogger("UI", "./data/ui.log"), jframe, config, sim);
+		mwindow.initWindow();
+		mwindow.configWindow();
+	}
+
+	public static void main(String[] args) {
+		App app = new App();
+
+		try {
+			app._main(args);
+		} catch (Exception e) {
+			Logging.exception(e);
+		}
+	}
 }

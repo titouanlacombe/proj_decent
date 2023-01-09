@@ -8,21 +8,19 @@ import sim.protocol.TokenRequest;
 import utils.*;
 
 public class Manager {
-	private Logger logger;
-
 	// Args: num_nodes => write to stdout the ip:port of manager
 	public void _main(String[] args) throws Exception {
-		this.logger = Logger.fileLogger("Manager", "./data/manager.log");
+		Logging.init("Manager", "./data/manager.log");
 
 		if (args.length < 2) {
-			logger.error("Error: Invalid number of arguments\nUsage: java Manager num_nodes room_capacity");
+			Logging.error("Error: Invalid number of arguments\nUsage: java Manager num_nodes room_capacity");
 			return;
 		}
 
 		// Create server
 		ServerSocket serverSocket = new ServerSocket(0);
 		FullAddress managerAddress = FullAddress.fromSocket(serverSocket);
-		logger.debug("Manager started at " + managerAddress);
+		Logging.debug("Manager started at " + managerAddress);
 
 		// Write address to file file for automation
 		File server_file = new File("./data/manager_address.txt");
@@ -34,7 +32,7 @@ public class Manager {
 
 		// Wait for nodes
 		int numNodes = Integer.parseInt(args[0]);
-		logger.debug("Waiting for " + numNodes + " nodes to connect");
+		Logging.debug("Waiting for " + numNodes + " nodes to connect");
 		HashMap<String, FullAddress> nodes = new HashMap<String, FullAddress>();
 		for (int i = 0; i < numNodes; i++) {
 			// Get message
@@ -46,7 +44,7 @@ public class Manager {
 			String[] parts = node_message.split(" ");
 			String uuid = parts[0];
 			FullAddress node_address = FullAddress.fromString(parts[1]);
-			logger.debug("Node " + uuid + " registered with address: " + node_address);
+			Logging.debug("Node " + uuid + " registered with address: " + node_address);
 
 			nodes.put(uuid, node_address);
 		}
@@ -67,7 +65,7 @@ public class Manager {
 			FullAddress current = nodes.get(uuids.get(i));
 			FullAddress next = nodes.get(uuids.get((i + 1) % numNodes));
 
-			logger.debug("Calling back " + current + " with " + next);
+			Logging.debug("Calling back " + current + " with " + next);
 
 			Socket socket = new Socket(current.ip, current.port);
 			socket.getOutputStream().write(next.toString().getBytes());
@@ -79,11 +77,11 @@ public class Manager {
 		Token initialToken = new Token(roomCapacity);
 
 		// Sending start message to node 0
-		logger.debug("Sending start message to node 0");
+		Logging.debug("Sending start message to node 0");
 		FullAddress node0 = nodes.get(uuids.get(0));
 		Protocol.send(node0, new TokenRequest(initialToken));
 
-		logger.info("Nodes setup complete, exiting");
+		Logging.info("Nodes setup complete, exiting");
 		serverSocket.close();
 	}
 
@@ -92,7 +90,7 @@ public class Manager {
 		try {
 			manager._main(args);
 		} catch (Exception e) {
-			manager.logger.exception(e);
+			Logging.exception(e);
 		}
 	}
 }
