@@ -15,185 +15,186 @@ import utils.Logger;
 import utils.NormalGenerator;
 
 public class Simulator {
-	private Logger logger;
-	private Config config;
-	private Process[] nodes_procs;
-	private ServerSocket serverSocket;
-	private Room room;
+    private Logger logger;
+    private Config config;
+    private Process[] nodes_procs;
+    private ServerSocket serverSocket;
+    private Room room;
 
-	private String activeUuid;
+    private String activeUuid;
 
-	public Simulator(Config config) {
-		this.config = config;
-		this.room = new Room(config.entryRate,
-				new NormalGenerator(config.visitTimeMean, config.visitTimeStdDev, config.randSeed),
-				new Clock(config.simulationTimeFactor));
-	}
+    public Simulator(Config config) throws Exception {
+        this.config = config;
+        this.room = new Room(config.entryRate,
+                new NormalGenerator(config.visitTimeMean, config.visitTimeStdDev, config.randSeed),
+                new Clock(config.simulationTimeFactor));
 
-	public Simulator() {
-		this(Config._default());
-	}
+        this.logger = Logger.fileLogger("Simulator", "./data/simulator.log");
+    }
 
-	// Args: num_nodes => write to stdout the ip:port of manager
-	public void start() throws Exception {
-		this.logger = Logger.fileLogger("Simulator", "./data/simulator.log");
+    public Simulator() throws Exception {
+        this(Config._default());
+    }
 
-		// Create server
-		serverSocket = new ServerSocket(0);
-		FullAddress simulatorAddress = FullAddress.fromSocket(serverSocket);
-		logger.info("Simulator started at " + simulatorAddress);
+    // Args: num_nodes => write to stdout the ip:port of manager
+    public void start() throws Exception {
 
-		// Delete files from previous runs
-		File managerAddressFile = new File("./data/manager_address.txt");
-		File nodesFile = new File("./data/nodes_addresses.txt");
-		managerAddressFile.delete();
-		nodesFile.delete();
+        // Create server
+        serverSocket = new ServerSocket(0);
+        FullAddress simulatorAddress = FullAddress.fromSocket(serverSocket);
+        logger.info("Simulator started at " + simulatorAddress);
 
-		// Start manager subprocess
-		logger.info("Starting manager");
-		ProcessBuilder managerBuilder = new ProcessBuilder(
-				"java", "-cp", "src", "Manager",
-				String.valueOf(config.numNodes),
-				String.valueOf(config.roomCapacity));
-		managerBuilder.redirectOutput(ProcessBuilder.Redirect.INHERIT);
-		managerBuilder.redirectError(ProcessBuilder.Redirect.INHERIT);
-		Process manager = managerBuilder.start();
+        // Delete files from previous runs
+        File managerAddressFile = new File("./data/manager_address.txt");
+        File nodesFile = new File("./data/nodes_addresses.txt");
+        managerAddressFile.delete();
+        nodesFile.delete();
 
-		// Wait for newline in manager_address.txt
-		logger.debug("Waiting for manager address");
-		while (!managerAddressFile.exists()) {
-			Thread.sleep(100);
-			if (!manager.isAlive()) {
-				logger.error("Manager exited unexpectedly");
-				System.exit(1);
-			}
-		}
-		BufferedReader reader = new BufferedReader(new FileReader(managerAddressFile));
-		String managerAddressString = reader.readLine();
-		reader.close();
-		FullAddress managerAddress = FullAddress.fromString(managerAddressString);
+        // Start manager subprocess
+        logger.info("Starting manager");
+        ProcessBuilder managerBuilder = new ProcessBuilder(
+                "java", "-cp", "src", "Manager",
+                String.valueOf(config.numNodes),
+                String.valueOf(config.roomCapacity));
+        managerBuilder.redirectOutput(ProcessBuilder.Redirect.INHERIT);
+        managerBuilder.redirectError(ProcessBuilder.Redirect.INHERIT);
+        Process manager = managerBuilder.start();
 
-		// Start nodes subprocesses
-		logger.info("Starting " + config.numNodes + " nodes");
-		ProcessBuilder nodeBuilder = new ProcessBuilder(
-				"java", "-cp", "src", "Node",
-				managerAddress.toString(),
-				simulatorAddress.toString(),
-				String.valueOf(config.nodeSleepTime));
-		nodeBuilder.redirectOutput(ProcessBuilder.Redirect.INHERIT);
-		nodeBuilder.redirectError(ProcessBuilder.Redirect.INHERIT);
+        // Wait for newline in manager_address.txt
+        logger.debug("Waiting for manager address");
+        while (!managerAddressFile.exists()) {
+            Thread.sleep(100);
+            if (!manager.isAlive()) {
+                logger.error("Manager exited unexpectedly");
+                System.exit(1);
+            }
+        }
+        BufferedReader reader = new BufferedReader(new FileReader(managerAddressFile));
+        String managerAddressString = reader.readLine();
+        reader.close();
+        FullAddress managerAddress = FullAddress.fromString(managerAddressString);
 
-		nodes_procs = new Process[config.numNodes];
-		for (int i = 0; i < config.numNodes; i++) {
-			nodes_procs[i] = nodeBuilder.start();
-		}
+        // Start nodes subprocesses
+        logger.info("Starting " + config.numNodes + " nodes");
+        ProcessBuilder nodeBuilder = new ProcessBuilder(
+                "java", "-cp", "src", "Node",
+                managerAddress.toString(),
+                simulatorAddress.toString(),
+                String.valueOf(config.nodeSleepTime));
+        nodeBuilder.redirectOutput(ProcessBuilder.Redirect.INHERIT);
+        nodeBuilder.redirectError(ProcessBuilder.Redirect.INHERIT);
 
-		// Wait manager to finish
-		logger.debug("Waiting for manager to finish");
-		int code = manager.waitFor();
-		if (code != 0) {
-			logger.error("Manager exited with code " + code);
-			System.exit(code);
-		}
+        nodes_procs = new Process[config.numNodes];
+        for (int i = 0; i < config.numNodes; i++) {
+            nodes_procs[i] = nodeBuilder.start();
+        }
 
-		// Recover nodes addresses from nodes_addresses.txt
-		logger.debug("Recovering nodes addresses");
-		reader = new BufferedReader(new FileReader(nodesFile));
-		HashMap<String, FullAddress> nodes = new HashMap<String, FullAddress>();
-		for (int i = 0; i < config.numNodes; i++) {
-			String line = reader.readLine();
-			String[] parts = line.split(" ");
-			nodes.put(parts[0], FullAddress.fromString(parts[1]));
-		}
-		reader.close();
+        // Wait manager to finish
+        logger.debug("Waiting for manager to finish");
+        int code = manager.waitFor();
+        if (code != 0) {
+            logger.error("Manager exited with code " + code);
+            System.exit(code);
+        }
 
-		// Set controllers in room
-		room.setNodes(nodes);
-	}
+        // Recover nodes addresses from nodes_addresses.txt
+        logger.debug("Recovering nodes addresses");
+        reader = new BufferedReader(new FileReader(nodesFile));
+        HashMap<String, FullAddress> nodes = new HashMap<String, FullAddress>();
+        for (int i = 0; i < config.numNodes; i++) {
+            String line = reader.readLine();
+            String[] parts = line.split(" ");
+            nodes.put(parts[0], FullAddress.fromString(parts[1]));
+        }
+        reader.close();
 
-	public void startSim() throws Exception {
-		logger.info("Startup complete, starting simulation");
+        // Set controllers in room
+        room.setNodes(nodes);
+    }
 
-		// Start server
-		Thread serverThread = new Thread(new Runnable() {
-			public void run() {
-				try {
-					while (true) {
-						Socket clientSocket = serverSocket.accept();
-						boolean exit = handleRequest(clientSocket);
-						clientSocket.close();
+    public void startSim() throws Exception {
+        logger.info("Startup complete, starting simulation");
 
-						if (exit) {
-							break;
-						}
-					}
-				} catch (Exception e) {
-					logger.exception(e);
-				}
-			}
-		});
+        // Start server
+        Thread serverThread = new Thread(new Runnable() {
+            public void run() {
+                try {
+                    while (true) {
+                        Socket clientSocket = serverSocket.accept();
+                        boolean exit = handleRequest(clientSocket);
+                        clientSocket.close();
 
-		serverThread.start();
+                        if (exit) {
+                            break;
+                        }
+                    }
+                } catch (Exception e) {
+                    logger.exception(e);
+                }
+            }
+        });
 
-		// Start simulation
-		Thread simulationThread = new Thread(new Runnable() {
-			public void run() {
-				try {
-					room.init_sim();
-					while (true) {
-						// logger.debug("Room update tick");
+        serverThread.start();
 
-						room.update_people();
-						Thread.sleep(config.simulationUpdateInterval);
-					}
-				} catch (Exception e) {
-					logger.exception(e);
-				}
-			}
-		});
+        // Start simulation
+        Thread simulationThread = new Thread(new Runnable() {
+            public void run() {
+                try {
+                    room.init_sim();
+                    while (true) {
+                        // logger.debug("Room update tick");
 
-		simulationThread.start();
-	}
+                        room.update_people();
+                        Thread.sleep(config.simulationUpdateInterval);
+                    }
+                } catch (Exception e) {
+                    logger.exception(e);
+                }
+            }
+        });
 
-	public void killNodes() {
-		if (nodes_procs != null) {
-			logger.debug("Killing nodes");
-			for (int i = 0; i < config.numNodes; i++) {
-				nodes_procs[i].destroy();
-			}
-		}
-		logger.info("Done");
+        simulationThread.start();
+    }
 
-	}
+    public void killNodes() {
+        if (nodes_procs != null) {
+            logger.debug("Killing nodes");
+            for (int i = 0; i < config.numNodes; i++) {
+                nodes_procs[i].destroy();
+            }
+        }
+        logger.info("Done");
 
-	public void simulationUpdate(SimulationUpdateRequest request) throws Exception {
-		activeUuid = request.sender_uuid;
-		room.update_controller(request.sender_uuid, request.controller);
-	}
+    }
 
-	public boolean handleRequest(Socket clientSocket) throws Exception {
-		Request request = Protocol.recv(clientSocket);
-		logger.info(request.toString());
+    public void simulationUpdate(SimulationUpdateRequest request) throws Exception {
+        activeUuid = request.sender_uuid;
+        room.update_controller(request.sender_uuid, request.controller);
+    }
 
-		switch (request.getCode()) {
-			case ExitRequest.CODE:
-				return true;
-			case SimulationUpdateRequest.CODE:
-				simulationUpdate((SimulationUpdateRequest) request);
-				break;
-			default:
-				logger.error("Error: Invalid request code");
-				break;
-		}
+    public boolean handleRequest(Socket clientSocket) throws Exception {
+        Request request = Protocol.recv(clientSocket);
+        logger.info(request.toString());
 
-		return false;
-	}
+        switch (request.getCode()) {
+            case ExitRequest.CODE:
+                return true;
+            case SimulationUpdateRequest.CODE:
+                simulationUpdate((SimulationUpdateRequest) request);
+                break;
+            default:
+                logger.error("Error: Invalid request code");
+                break;
+        }
 
-	public Room getRoom() {
-		return room;
-	}
+        return false;
+    }
 
-	public String getActiveUuid() {
-		return activeUuid;
-	}
+    public Room getRoom() {
+        return room;
+    }
+
+    public String getActiveUuid() {
+        return activeUuid;
+    }
 }
