@@ -7,17 +7,22 @@ import config.Config;
 import sim.Simulator;
 
 public class App {
-    public static void main(String[] args) {
-        Config config = Config._default();
+	public static void main(String[] args) {
+		Config config = Config._default();
 
-        JFrame jframe = new JFrame(config.windowTitle);
-        jframe.setSize(config.windowWidth, config.windowHeight);
-        jframe.getContentPane().setBackground(Color.DARK_GRAY);
+		JFrame jframe = new JFrame(config.windowTitle);
+		jframe.setSize(config.windowWidth, config.windowHeight);
+		jframe.getContentPane().setBackground(Color.DARK_GRAY);
 
-        Simulator sim = new Simulator(config);
+		Simulator sim = new Simulator(config);
 
-        MainWindow mwindow = new MainWindow(jframe, config, sim);
-        mwindow.initWindow();
-        mwindow.configWindow();
-    }
+		try {
+			MainWindow mwindow = new MainWindow(jframe, config, sim);
+			mwindow.initWindow();
+			mwindow.configWindow();
+		} catch (Exception e) {
+			System.out.println("Error: ");
+			e.printStackTrace();
+		}
+	}
 }

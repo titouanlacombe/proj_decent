@@ -1,5 +1,10 @@
 package utils;
 
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.OutputStream;
+
 import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.Map;
@@ -12,22 +17,23 @@ public class Logger {
 		ERROR
 	}
 
-	static String default_format = "[{Y}/{M}/{D} {h}:{m}:{s}.{millis}] [{name}-{level}]: {message}";
+	static String default_format = "[{Y}/{M}/{D} {h}:{m}:{s}.{millis}] [{name}-{level}]: {message}\n";
 	String format;
 	String name;
+	OutputStream stream;
 
-	public Logger(String format, String name) {
+	public Logger(String format, String name, OutputStream stream) {
 		this.format = format;
 		this.name = name;
+		this.stream = stream;
 	}
 
-	public static Logger _default() {
-		return new Logger(default_format, "");
+	public static Logger fileLogger(String format, String name, String path) throws FileNotFoundException {
+		return new Logger(format, name, new FileOutputStream(new File(path)));
 	}
 
-	public Logger(String name) {
-		this.format = default_format;
-		this.name = name;
+	public static Logger fileLogger(String name, String path) throws FileNotFoundException {
+		return fileLogger(default_format, name, path);
 	}
 
 	public static String getLevelName(Level level) {
@@ -86,7 +92,12 @@ public class Logger {
 
 		// Format & log
 		String formatted = format(this.format, metas);
-		System.out.println(formatted);
+		try {
+			this.stream.write(formatted.getBytes());
+		} catch (Exception e) {
+			System.err.println("FATAL LOGGING ERROR:");
+			e.printStackTrace();
+		}
 	}
 
 	public void debug(String message) {

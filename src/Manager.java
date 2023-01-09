@@ -8,10 +8,12 @@ import sim.protocol.TokenRequest;
 import utils.*;
 
 public class Manager {
-	private Logger logger = new Logger("Manager");
+	private Logger logger;
 
 	// Args: num_nodes => write to stdout the ip:port of manager
 	public void _main(String[] args) throws Exception {
+		this.logger = Logger.fileLogger("Manager", "./data/manager.log");
+
 		if (args.length < 2) {
 			logger.error("Error: Invalid number of arguments\nUsage: java Manager num_nodes room_capacity");
 			return;

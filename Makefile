@@ -24,7 +24,7 @@ start_node: data
 	java -cp src Node $(ARGS)
 
 start_app: data
-	java -cp src App $(ARGS) > data/app.log
+	java -cp src App $(ARGS)
 
 run_manager: build start_manager
 run_node: build start_node

@@ -15,12 +15,13 @@ public class Node {
 	private Long sleepTime;
 
 	public Node() {
-		this.uuid = UUID.randomUUID().toString();
-		this.logger = new Logger("Node " + this.uuid);
+		this.uuid = UUID.randomUUID().toString().substring(0, 4);
 	}
 
 	// Args: manager_ip:manager_port
 	public void _main(String[] args) throws Exception {
+		this.logger = Logger.fileLogger("Node " + this.uuid, "./data/node.log");
+
 		if (args.length < 1) {
 			logger.error(
 					"Error: Invalid number of arguments\nUsage: java Node manager_ip:manager_port [simulator_ip:simulator_port sleep_time]");

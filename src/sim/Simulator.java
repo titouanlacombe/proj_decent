@@ -15,7 +15,7 @@ import utils.Logger;
 import utils.NormalGenerator;
 
 public class Simulator {
-	private Logger logger = new Logger("Simulator");
+	private Logger logger;
 	private Config config;
 	private Process[] nodes_procs;
 	private ServerSocket serverSocket;
@@ -36,6 +36,7 @@ public class Simulator {
 
 	// Args: num_nodes => write to stdout the ip:port of manager
 	public void start() throws Exception {
+		this.logger = Logger.fileLogger("Simulator", "./data/simulator.log");
 
 		// Create server
 		serverSocket = new ServerSocket(0);
