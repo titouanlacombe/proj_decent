@@ -12,7 +12,7 @@ public class Logger {
 		ERROR
 	}
 
-	static String default_format = "[{Y}/{M}/{D}@{h}:{m}:{s}.{millis}] [{name}-{level}]: {message}";
+	static String default_format = "[{Y}/{M}/{D} {h}:{m}:{s}.{millis}] [{name}-{level}]: {message}";
 	String format;
 	String name;
 
