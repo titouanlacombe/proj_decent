@@ -2,29 +2,27 @@ default: run_app
 
 # Parse the command line arguments by ignoring the first one
 ARGS = $(wordlist 2,$(words $(MAKECMDGOALS)),$(MAKECMDGOALS))
+export BIN_DIR=bin
 
 data:
 	mkdir -p data
 
 build:
-	javac src/utils/*.java \
-		src/config/*.java \
-		src/sim/protocol/*.java \
-		src/sim/*.java \
-		src/ui/*.java \
-		src/*.java
+	javac -d $(BIN_DIR) $$(find src -name "*.java")
 
 clean:
+	rm -rf data
+	rm -rf $(BIN_DIR)
 	find . -name "*.class" -type f -delete
 
 start_manager: data
-	java -cp src Manager $(ARGS)
+	java -cp $(BIN_DIR) Manager $(ARGS)
 
 start_node: data
-	java -cp src Node $(ARGS)
+	java -cp $(BIN_DIR) Node $(ARGS)
 
 start_app: data
-	java -cp src App $(ARGS)
+	java -cp $(BIN_DIR) App $(ARGS)
 
 run_manager: build start_manager
 run_node: build start_node

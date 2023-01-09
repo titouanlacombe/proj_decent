@@ -38,6 +38,10 @@ public class Simulator {
 	public void start() throws Exception {
 		this.logger = Logger.fileLogger("Simulator", "./data/simulator.log");
 
+		// Get bin dir from env
+		String binDir = System.getenv("BIN_DIR");
+		logger.debug("got BIN_DIR: " + binDir);
+
 		// Create server
 		serverSocket = new ServerSocket(0);
 		FullAddress simulatorAddress = FullAddress.fromSocket(serverSocket);
@@ -52,7 +56,7 @@ public class Simulator {
 		// Start manager subprocess
 		logger.info("Starting manager");
 		ProcessBuilder managerBuilder = new ProcessBuilder(
-				"java", "-cp", "src", "Manager",
+				"java", "-cp", binDir, "Manager",
 				String.valueOf(config.numNodes),
 				String.valueOf(config.roomCapacity));
 		managerBuilder.redirectOutput(ProcessBuilder.Redirect.INHERIT);
@@ -76,7 +80,7 @@ public class Simulator {
 		// Start nodes subprocesses
 		logger.info("Starting " + config.numNodes + " nodes");
 		ProcessBuilder nodeBuilder = new ProcessBuilder(
-				"java", "-cp", "src", "Node",
+				"java", "-cp", binDir, "Node",
 				managerAddress.toString(),
 				simulatorAddress.toString(),
 				String.valueOf(config.nodeSleepTime));
