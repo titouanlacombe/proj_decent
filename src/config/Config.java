@@ -58,6 +58,10 @@ public class Config {
 		return this.getClass().getDeclaredField(key).get(this);
 	}
 
+	public void set(String key, Object value) throws NoSuchFieldException, IllegalAccessException {
+		this.getClass().getDeclaredField(key).set(this, value);
+	}
+
 	public String toString() {
 		// Using reflexion
 		String[] keys = getKeys();
