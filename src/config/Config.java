@@ -65,7 +65,7 @@ public class Config {
 	public String toString() {
 		// Using reflexion
 		String str = "Config:\n";
-		for (String key : getKeys()) {
+		for (String key : this.getKeys()) {
 			try {
 				str += "\t" + key + ": " + this.get(key) + "\n";
 			} catch (Exception e) {
