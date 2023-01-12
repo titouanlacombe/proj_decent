@@ -105,7 +105,9 @@ public class Room {
 	}
 
 	public HashMap<String, Controller> getControllers() {
-		return controllers;
+		synchronized (controllers) {
+			return controllers;
+		}
 	}
 
 	public int getNumber() {
