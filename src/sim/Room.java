@@ -39,15 +39,15 @@ public class Room {
 
 	// Make persons leave the room if they have to
 	private void leaving() throws Exception {
-		while (!leavingTimes.isEmpty() && leavingTimes.first() < clock.now()) {
-			synchronized (leavingTimes) {
+		synchronized (leavingTimes) {
+			while (!leavingTimes.isEmpty() && leavingTimes.first() < clock.now()) {
 				leavingTimes.remove(leavingTimes.first());
-			}
 
-			String uuid = randomUuid();
-			// Update local controller
-			controllers.get(uuid).departure();
-			Protocol.send(nodes.get(uuid), new DepartureRequest());
+				String uuid = randomUuid();
+				// Update local controller
+				controllers.get(uuid).departure();
+				Protocol.send(nodes.get(uuid), new DepartureRequest());
+			}
 		}
 	}
 
@@ -82,13 +82,13 @@ public class Room {
 			for (int i = 0; i < entered; i++) {
 				leavingTimes.add(visitTimeGenerator.get() + clock.now());
 			}
+
+			// Update controller
+			controllers.put(sender_uuid, updated);
+
+			Logging.debug("Leaving times: " + leavingTimes);
+			Logging.debug("Size: " + leavingTimes.size());
 		}
-
-		// Update controller
-		controllers.put(sender_uuid, updated);
-
-		Logging.debug("Leaving times: " + leavingTimes);
-		Logging.debug("Size: " + leavingTimes.size());
 	}
 
 	public void init_sim() {
@@ -109,6 +109,8 @@ public class Room {
 	}
 
 	public int getNumber() {
-		return leavingTimes.size();
+		synchronized (leavingTimes) {
+			return leavingTimes.size();
+		}
 	}
 }
