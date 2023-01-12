@@ -20,7 +20,7 @@ public class Simulator {
 	private ServerSocket serverSocket;
 	private Room room;
 
-	private String activeUuid;
+	private String activeUuid = "";
 
 	public Simulator(Config config) throws Exception {
 		this.config = config;
@@ -168,7 +168,9 @@ public class Simulator {
 	}
 
 	public void simulationUpdate(SimulationUpdateRequest request) throws Exception {
-		activeUuid = request.sender_uuid;
+		synchronized (activeUuid) {
+			activeUuid = request.sender_uuid;
+		}
 		room.update_controller(request.sender_uuid, request.controller);
 	}
 
@@ -195,6 +197,8 @@ public class Simulator {
 	}
 
 	public String getActiveUuid() {
-		return activeUuid;
+		synchronized (activeUuid) {
+			return activeUuid;
+		}
 	}
 }
